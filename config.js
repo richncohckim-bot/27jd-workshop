@@ -4,7 +4,7 @@
    ============================================================ */
 
 // 1) Apps Script 웹 앱 URL (https://script.google.com/macros/s/…/exec)
-const ENDPOINT = "여기에_웹앱_URL";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzOa0B3IuK-BJUpEl-rAK9Zvi96asE3xf8gu6FdecvvTppu_hHt6GzP_x6QVFSNdlS4TQ/exec";
 
 // 2) 조 개수 (Code_현장.gs 맨 위 TEAMS와 같게)
 const TEAMS = 10;
