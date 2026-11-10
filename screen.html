@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>진행 화면 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="qr.js"></script>
+<style>
+:root{--orange:#FFA500;--orange-ink:#9A5B00;--ink:#1E1E1C;--paper:#F7F6F3;--paper2:#EFEDE7;--card:#FDFCFA;--line:#E4E1DA;--muted:#5A5A55;--faint:#8A8780;--soft:#C9C5BC;--navy:#3F5468}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0d0d0c;overflow:hidden}
+body{font-family:'IBM Plex Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;word-break:keep-all;color:var(--ink)}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#000}
+.sl{position:absolute;inset:0;display:none}
+.sl.on{display:block}
+.sl>section{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;line-height:1.3}
+.sl section *{box-sizing:border-box}
+.sl section p,.sl section h1,.sl section h2,.sl section h3{margin:0}
+.sl section ul,.sl section ol{margin:0;padding-left:1.2em}
+.sl section aside{display:none}
+.sl section table{border-collapse:collapse;width:100%}
+.sl section th,.sl section td{border:1px solid #D8D4CB;padding:10px 16px;text-align:left}
+.sl section th{background:#EFEDE7;font-weight:700}
+.sl.on>section{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:.0}to{opacity:1}}
+/* live parts inside deck slides */
+.teamchips{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:820px}
+.teamchips div{border:2px solid #3a3a36;border-radius:14px;padding:10px 0;text-align:center;font-size:28px;font-weight:700;color:#8f8b83;line-height:1.2}
+.teamchips div small{display:block;font-size:20px;font-weight:500;margin-top:2px}
+.teamchips div.ok{background:var(--orange);border-color:var(--orange);color:var(--ink)}
+.bigcount{display:flex;align-items:baseline;gap:16px}
+.bigcount b{font-size:120px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.bigcount span{font-size:34px}
+.on-orange .bigcount b{color:var(--ink)}.on-orange .bigcount span{color:#4A3200}
+.on-dark .bigcount b{color:var(--orange)}.on-dark .bigcount span{color:var(--soft)}
+/* boards */
+.board{position:absolute;inset:0;background:var(--paper);padding:100px 128px 120px;display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:26px;font-weight:700;letter-spacing:1px;color:var(--orange-ink)}
+.board h2{margin:8px 0 0;font-size:60px;line-height:1.15;font-weight:700}
+.bhead{display:flex;justify-content:space-between;align-items:flex-end}
+.bfoot{position:absolute;left:128px;right:128px;bottom:48px;display:flex;justify-content:space-between;font-size:24px;color:var(--faint)}
+.tabs{display:flex;gap:10px}
+.tabs button{appearance:none;border:2px solid var(--line);background:var(--card);border-radius:14px;min-width:72px;height:64px;font:inherit;font-size:26px;font-weight:700;color:#b6b2aa;cursor:pointer}
+.tabs button.has{color:var(--ink)}
+.tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.photos{flex:1;display:flex;gap:24px;min-height:0}
+.photos .ph{flex:1;background:#E9E6DF;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-width:0;cursor:zoom-in}
+.photos .ph img{width:100%;height:100%;object-fit:contain;display:block}
+.empty{flex:1;border:3px dashed var(--line);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;color:var(--faint);text-align:center;line-height:1.5}
+.zoom{position:absolute;inset:0;background:rgba(20,20,18,.96);display:none;align-items:center;justify-content:center;z-index:20;cursor:zoom-out}
+.zoom.on{display:flex}
+.zoom img{max-width:1840px;max-height:1020px;object-fit:contain}
+.wcount{font-size:30px;color:var(--muted)}.wcount b{color:var(--orange-ink);font-size:44px}
+.cards{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:22px;min-height:0}
+.pc{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;animation:pop .5s ease both;min-height:0}
+.pc:nth-child(4n+1){border-top:6px solid var(--orange)}
+.pc p{margin:0;font-size:29px;line-height:1.42;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.pc span{font-size:22px;color:var(--faint);margin-top:10px}
+.pc .x{position:absolute;right:10px;top:8px;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--faint);font-size:24px;cursor:pointer;opacity:0}
+.pc:hover .x{opacity:1}
+@keyframes pop{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.dots{display:flex;gap:10px;justify-content:center;min-height:14px}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--orange)}
+.spot{position:absolute;inset:0;background:var(--ink);color:var(--paper);display:none;flex-direction:column;justify-content:center;padding:0 200px;z-index:15}
+.spot.on{display:flex}
+.spot q{font-size:84px;line-height:1.35;font-weight:700;quotes:"“" "”"}
+.spot q:before,.spot q:after{color:var(--orange)}
+.spot span{font-size:38px;color:var(--soft);margin-top:40px}
+.spot .hint{position:absolute;left:200px;bottom:60px;font-size:24px;color:#77736b}
+.black{position:absolute;inset:0;background:#000;z-index:30;display:none}
+.black.on{display:block}
+/* HUD */
+.hud{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:4px;align-items:center;background:rgba(30,30,28,.94);padding:6px;border-radius:14px;z-index:50;transition:opacity .3s;font-size:14px;color:#ddd}
+.hud.hide{opacity:0;pointer-events:none}
+.hud button{appearance:none;border:0;background:transparent;color:#ddd;font:inherit;padding:8px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.hud button:hover{background:#3a3a36}
+.hud .pos{padding:0 10px;font-variant-numeric:tabular-nums;color:#fff}
+.badge{position:fixed;right:14px;top:12px;z-index:60;background:var(--orange);color:var(--ink);font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;cursor:pointer}
+.overlay{position:fixed;inset:0;background:rgba(13,13,12,.92);z-index:70;display:none;overflow:auto;padding:40px}
+.overlay.on{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;max-width:1400px;margin:0 auto}
+.grid button{appearance:none;text-align:left;border:1px solid #3a3a36;background:#1b1b19;color:#eee;border-radius:12px;padding:14px 16px;font:inherit;font-size:15px;cursor:pointer;line-height:1.4}
+.grid button b{display:block;color:var(--orange);font-size:13px;margin-bottom:4px}
+.grid button.cur{border-color:var(--orange)}
+.grid h3{grid-column:1/-1;color:#999;font-size:13px;font-weight:600;margin:14px 0 0;letter-spacing:.05em}
+.notes{position:fixed;left:16px;right:16px;bottom:72px;z-index:55;background:rgba(27,27,25,.96);color:#eee;border-radius:14px;padding:18px 22px;display:none;font-size:16px;line-height:1.6;max-height:40vh;overflow:auto}
+.notes.on{display:block}
+.notes .t{color:var(--orange);font-weight:700;font-size:14px}
+.notes .nx{color:#999;font-size:14px;margin-top:8px}
+.jump{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:80;background:var(--orange);color:var(--ink);font-size:48px;font-weight:700;padding:14px 32px;border-radius:16px;display:none}
+.jump.on{display:block}
+/* 리허설 패널 */
+.simp{position:fixed;right:14px;top:46px;width:340px;z-index:65;background:#1b1b19;color:#eee;border-radius:14px;padding:16px;font-size:14px;line-height:1.5;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.simp.on{display:block}
+.simp h4{margin:0 0 8px;font-size:15px;color:var(--orange)}
+.simp .cnt{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.simp .cnt div{background:#2a2a27;border-radius:10px;padding:8px;text-align:center}
+.simp .cnt b{display:block;font-size:22px;color:#fff}
+.simp button{appearance:none;border:0;background:#33332f;color:#fff;font:inherit;padding:8px 10px;border-radius:8px;cursor:pointer;margin:0 4px 6px 0}
+.simp button:hover{background:#45453f}
+.simp button.warn{background:#5a2320}
+.simp select{font:inherit;background:#33332f;color:#fff;border:0;border-radius:8px;padding:6px 8px}
+.simp label{display:flex;gap:6px;align-items:center;margin:6px 0}
+.simp .log{margin-top:8px;max-height:200px;overflow:auto;background:#121211;border-radius:8px;padding:8px;font-size:12.5px;color:#cfcbc2;font-variant-numeric:tabular-nums}
+/* 발표자 화면 */
+.side{display:none}
+body.presenter{background:#141413}
+body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;right:0;top:0;bottom:0;width:34vw;padding:22px;color:#eee;overflow:auto}
+.side .clock{display:flex;justify-content:space-between;align-items:baseline}
+.side .clock b{font-size:44px;font-variant-numeric:tabular-nums}
+.side .clock span{font-size:22px;color:#aaa;font-variant-numeric:tabular-nums}
+.side .clock button{appearance:none;border:0;background:#33332f;color:#ddd;border-radius:8px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+.side .cur{background:#1f1f1d;border-radius:12px;padding:14px 16px}
+.side .cur .t{color:var(--orange);font-weight:700;font-size:13px}
+.side .cur h3{margin:4px 0 8px;font-size:22px}
+.side .cur p{margin:0;font-size:16.5px;line-height:1.6;color:#ddd;white-space:pre-wrap}
+.side .nxt{font-size:15px;color:#aaa}
+.side .nxt b{color:#eee}
+.side .ctl{display:flex;gap:8px}
+.side .ctl button{flex:1;appearance:none;border:0;background:var(--orange);color:var(--ink);font:inherit;font-weight:700;font-size:20px;padding:16px;border-radius:12px;cursor:pointer}
+.side .ctl button.prev{background:#33332f;color:#eee}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+<div class="sl " data-id="cover">
+<section id="cover" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<img src="logo.svg" alt="GoodRich 로고" style="width:300px;height:52px;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:32px">
+<p style="font-size:30px;font-weight:600;color:#FFA500;letter-spacing:1px">2027 RP 주임단 워크숍 · 1일차 현황 진단</p>
+<h1 style="font-size:120px;font-weight:700;line-height:1.1;color:#F7F6F3">현장에서 본<br>우리의 일</h1>
+<p style="font-size:40px;color:#C9C5BC">주임단 · 관리자 사전 설문 결과 공유</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#1E1E1C;background:#FFA500;padding:8px 20px;border-radius:999px">예시 자료</p>
+<p style="font-size:24px;color:#C9C5BC">수치와 의견은 레이아웃 확인용 예시이며 실제 응답 결과가 아닙니다</p>
+</div>
+<aside>세션 시작. 사전 설문은 주임단과 관리자(BM·SBM·RM)에게 같은 질문을 서로 반대 방향으로 물었습니다. 오늘은 “누가 맞다”가 아니라 “어디서 다르게 보는가”를 함께 확인합니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="respondents">
+<section id="respondents" data-section="응답자와 주임단 업무 현황" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">누가 응답했나</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">주임단 64명, 관리자 112명이 답했습니다</h2>
+</div>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:48px">
+<p style="font-size:30px;font-weight:600;color:#9A5B00">주임단</p>
+<p style="font-size:120px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums">64명</p>
+<p style="font-size:30px;color:#5A5A55">대상 82명 중 응답률 78%</p>
+<table style="font-size:28px;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif">
+<tr><th style="width:60%;text-align:left">근속기간</th><th style="width:40%;text-align:right">응답</th></tr>
+<tr><td>1년 미만</td><td style="text-align:right">9명</td></tr>
+<tr><td>1~3년</td><td style="text-align:right">18명</td></tr>
+<tr><td>3~5년</td><td style="text-align:right">15명</td></tr>
+<tr><td>5년 이상</td><td style="text-align:right">22명</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:48px">
+<p style="font-size:30px;font-weight:600;color:#3F5468">관리자</p>
+<p style="font-size:120px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums">112명</p>
+<p style="font-size:30px;color:#5A5A55">지점장 · 사업단장 · 본부장</p>
+<table style="font-size:28px;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif">
+<tr><th style="width:60%;text-align:left">직책</th><th style="width:40%;text-align:right">응답</th></tr>
+<tr><td>지점장(BM)</td><td style="text-align:right">78명</td></tr>
+<tr><td>사업단장(SBM)</td><td style="text-align:right">26명</td></tr>
+<tr><td>본부장(RM)</td><td style="text-align:right">8명</td></tr>
+</table>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">02</p>
+</div>
+<aside>응답 현황. 실제 결과에서는 5명 미만인 집단(예: 본부장, 근속 구간 일부)은 따로 해석하지 않습니다. 익명성 보호를 위해 세부 교차 분석은 화면에 띄우지 않습니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="time">
+<section id="time" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">주임단의 시간은 어디에 쓰이나</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">신계약과 RP 인사에 시간이 몰려 있습니다</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;font-weight:600;width:240px">신계약</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:956px;height:40px;background:#FFA500;border-radius:6px"></div></div><p style="font-size:30px;font-weight:700;width:140px;text-align:right;font-variant-numeric:tabular-nums">81%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;font-weight:600;width:240px">RP 인사</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:743px;height:40px;background:#FFA500;border-radius:6px"></div></div><p style="font-size:30px;font-weight:700;width:140px;text-align:right;font-variant-numeric:tabular-nums">63%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;width:240px">보유계약</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:555px;height:40px;background:#E5C68A;border-radius:6px"></div></div><p style="font-size:30px;width:140px;text-align:right;font-variant-numeric:tabular-nums">47%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;width:240px">고객서비스</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:448px;height:40px;background:#E5C68A;border-radius:6px"></div></div><p style="font-size:30px;width:140px;text-align:right;font-variant-numeric:tabular-nums">38%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;width:240px">공통</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:401px;height:40px;background:#E5C68A;border-radius:6px"></div></div><p style="font-size:30px;width:140px;text-align:right;font-variant-numeric:tabular-nums">34%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;width:240px">사무실 관리</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:260px;height:40px;background:#E5C68A;border-radius:6px"></div></div><p style="font-size:30px;width:140px;text-align:right;font-variant-numeric:tabular-nums">22%</p></div>
+<div style="display:flex;align-items:center;gap:24px"><p style="font-size:30px;width:240px">준법감시</p><div style="width:1180px;height:40px;background:#ECE9E2;border-radius:6px;display:flex"><div style="width:106px;height:40px;background:#E5C68A;border-radius:6px"></div></div><p style="font-size:30px;width:140px;text-align:right;font-variant-numeric:tabular-nums">9%</p></div>
+</div>
+<p style="font-size:24px;color:#5A5A55">주임단 설문 3번 · 1인당 최대 3개 선택 · 응답자 대비 선택 비율</p>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">03</p>
+</div>
+<aside>주임단 3번. 시간을 가장 많이 쓰는 업무 영역. 다음 장에서 이 영역들을 두고 “누구의 일인가”를 양쪽이 어떻게 보는지 이어서 봅니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="whose">
+<section id="whose" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">누구의 일인가</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">사무실 관리와 준법감시에서 생각이 갈립니다</h2>
+</div>
+<div style="display:flex;align-items:center">
+<div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-weight:600;color:#3F5468">관리자 · 주임단이 해야 하는 업무다</p><div style="width:24px;height:24px;background:#3F5468;border-radius:4px"></div></div>
+<div style="width:264px"></div>
+<div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:24px;height:24px;background:#FFA500;border-radius:4px"></div><p style="font-size:26px;font-weight:600;color:#9A5B00">주임단 · 주임단 업무가 아니다</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">96%</p><div style="width:576px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:600;width:264px;text-align:center">신계약</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:18px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-variant-numeric:tabular-nums">3%</p></div></div>
+<div style="display:flex;align-items:center"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">88%</p><div style="width:528px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:600;width:264px;text-align:center">보유계약</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:84px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-variant-numeric:tabular-nums">14%</p></div></div>
+<div style="display:flex;align-items:center"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">84%</p><div style="width:504px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:600;width:264px;text-align:center">고객서비스</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:186px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-variant-numeric:tabular-nums">31%</p></div></div>
+<div style="display:flex;align-items:center"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">91%</p><div style="width:546px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:600;width:264px;text-align:center">RP 인사</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:36px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-variant-numeric:tabular-nums">6%</p></div></div>
+<div style="display:flex;align-items:center;background:#FBEBCB;border-radius:8px"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">79%</p><div style="width:474px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:700;width:264px;text-align:center">사무실 관리</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:252px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums">42% · 차이 큼</p></div></div>
+<div style="display:flex;align-items:center;background:#FBEBCB;border-radius:8px"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">52%</p><div style="width:312px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:700;width:264px;text-align:center">준법감시</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:282px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums">47% · 차이 큼</p></div></div>
+<div style="display:flex;align-items:center"><div style="width:700px;display:flex;justify-content:flex-end;align-items:center;gap:12px"><p style="font-size:26px;font-variant-numeric:tabular-nums">73%</p><div style="width:438px;height:40px;background:#3F5468;border-radius:6px"></div></div><p style="font-size:30px;font-weight:600;width:264px;text-align:center">공통</p><div style="width:700px;display:flex;align-items:center;gap:12px"><div style="width:114px;height:40px;background:#FFA500;border-radius:6px"></div><p style="font-size:26px;font-variant-numeric:tabular-nums">19%</p></div></div>
+</div>
+<p style="font-size:24px;color:#5A5A55">관리자 설문 4번 vs 주임단 설문 3-1 · 복수 선택 · 주임단 28%는 ‘모두 주임단 업무다’ 선택</p>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">04</p>
+</div>
+<aside>핵심 장면. 왼쪽은 관리자가 “주임단 일”이라고 본 비율, 오른쪽은 주임단이 “우리 일이 아니다”라고 본 비율. 양쪽 막대가 모두 긴 영역이 인식이 엇갈리는 곳입니다. 예시에서는 사무실 관리와 준법감시.</aside>
+</section>
+</div>
+<div class="sl " data-id="requests">
+<section id="requests" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">범위 밖 요청, 얼마나 자주?</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">주 1회 이상이라는 답, 주임단 47% · 관리자 15%</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:center">
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#E9E6DF;border-radius:4px"></div><p style="font-size:24px">거의 없음</p></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#F6CE85;border-radius:4px"></div><p style="font-size:24px">월 1~2회</p></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#F2A33A;border-radius:4px"></div><p style="font-size:24px">주 1~2회</p></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#9A4F00;border-radius:4px"></div><p style="font-size:24px">거의 매일</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;align-items:center;gap:24px">
+<div style="width:340px;display:flex;flex-direction:column;gap:4px"><p style="font-size:30px;font-weight:700">주임단</p><p style="font-size:24px;color:#5A5A55">요청받는 빈도</p></div>
+<div style="display:flex;width:1300px">
+<div style="width:286px;height:80px;background:#E9E6DF;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px"><p style="font-size:28px;font-weight:600">22%</p></div>
+<div style="width:403px;height:80px;background:#F6CE85;display:flex;align-items:center;justify-content:center"><p style="font-size:28px;font-weight:600">31%</p></div>
+<div style="width:390px;height:80px;background:#F2A33A;display:flex;align-items:center;justify-content:center"><p style="font-size:28px;font-weight:600">30%</p></div>
+<div style="width:221px;height:80px;background:#9A4F00;display:flex;align-items:center;justify-content:center;border-radius:0 8px 8px 0"><p style="font-size:28px;font-weight:600;color:#FDFCFA">17%</p></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:24px">
+<div style="width:340px;display:flex;flex-direction:column;gap:4px"><p style="font-size:30px;font-weight:700">관리자</p><p style="font-size:24px;color:#5A5A55">요청하는 빈도</p></div>
+<div style="display:flex;width:1300px">
+<div style="width:754px;height:80px;background:#E9E6DF;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px"><p style="font-size:28px;font-weight:600">58%</p></div>
+<div style="width:351px;height:80px;background:#F6CE85;display:flex;align-items:center;justify-content:center"><p style="font-size:28px;font-weight:600">27%</p></div>
+<div style="width:156px;height:80px;background:#F2A33A;display:flex;align-items:center;justify-content:center"><p style="font-size:28px;font-weight:600">12%</p></div>
+<div style="width:39px;height:80px;background:#9A4F00;border-radius:0 8px 8px 0"></div>
+</div>
+</div>
+</div>
+<p style="font-size:24px;color:#5A5A55">관리자 ‘거의 매일’ 3% · 주임단 설문 3-2 vs 관리자 설문 7번 · 두 문항의 기준 표현이 달라 참고용으로 비교</p>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">05</p>
+</div>
+<aside>요청받는 쪽과 요청하는 쪽이 느끼는 빈도 차이. 실제 배포 전에 두 문항의 기준 표현을 맞추면 이 장면을 정식 비교로 쓸 수 있습니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="perception">
+<section id="perception" data-section="주임단과 관리자가 서로를 보는 방식" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">서로를 어떻게 느끼나</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">가장 큰 차이는 요청의 시간 여유입니다</h2>
+</div>
+<div style="display:flex;align-items:center">
+<div style="width:600px;display:flex;gap:28px;align-items:center">
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#FFA500;border-radius:50%"></div><p style="font-size:24px;font-weight:600">주임단</p></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="font-size:24px;font-weight:600">관리자</p></div>
+</div>
+<div style="position:relative;width:920px;height:32px">
+<p style="position:absolute;left:0;top:0;width:200px;font-size:24px;color:#5A5A55">1 전혀 아니다</p>
+<p style="position:absolute;left:440px;top:0;width:80px;font-size:24px;color:#5A5A55;text-align:center">3</p>
+<p style="position:absolute;left:720px;top:0;width:200px;font-size:24px;color:#5A5A55;text-align:right">매우 그렇다 5</p>
+</div>
+<p style="width:144px;font-size:24px;color:#5A5A55;text-align:right">차이</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;background:#FBEBCB;border-radius:8px"><p style="width:600px;font-size:28px;font-weight:700">요청·처리의 시간 여유</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:299px;top:45px;width:345px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:287px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:632px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:267px;top:0;width:64px;font-size:24px;text-align:center">2.3</p><p style="position:absolute;left:612px;top:0;width:64px;font-size:24px;text-align:center">3.8</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">1.5</p></div>
+<div style="display:flex;align-items:center"><p style="width:600px;font-size:28px">상대가 내 역할을 이해한다</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:368px;top:45px;width:253px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:356px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:609px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:336px;top:0;width:64px;font-size:24px;text-align:center">2.6</p><p style="position:absolute;left:589px;top:0;width:64px;font-size:24px;text-align:center">3.7</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">1.1</p></div>
+<div style="display:flex;align-items:center"><p style="width:600px;font-size:28px">서류·정보가 충분하고 정확하다</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:414px;top:45px;width:253px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:402px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:655px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:382px;top:0;width:64px;font-size:24px;text-align:center">2.8</p><p style="position:absolute;left:635px;top:0;width:64px;font-size:24px;text-align:center">3.9</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">1.1</p></div>
+<div style="display:flex;align-items:center"><p style="width:600px;font-size:28px">소통이 원활하다</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:552px;top:45px;width:161px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:540px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:701px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:520px;top:0;width:64px;font-size:24px;text-align:center">3.4</p><p style="position:absolute;left:681px;top:0;width:64px;font-size:24px;text-align:center">4.1</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">0.7</p></div>
+<div style="display:flex;align-items:center"><p style="width:600px;font-size:28px">서로 존중하며 소통한다</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:575px;top:45px;width:115px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:563px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:678px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:543px;top:0;width:64px;font-size:24px;text-align:center">3.5</p><p style="position:absolute;left:658px;top:0;width:64px;font-size:24px;text-align:center">4.0</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">0.5</p></div>
+<div style="display:flex;align-items:center"><p style="width:600px;font-size:28px">나는 상대의 업무를 이해한다</p><div style="position:relative;width:920px;height:64px"><div style="position:absolute;left:0;top:47px;width:920px;height:2px;background:#DAD5CB"></div><div style="position:absolute;left:667px;top:45px;width:69px;height:6px;background:#CFC8BA"></div><div style="position:absolute;left:655px;top:36px;width:24px;height:24px;background:#FFA500;border-radius:50%"></div><div style="position:absolute;left:724px;top:36px;width:24px;height:24px;background:#3F5468;border-radius:50%"></div><p style="position:absolute;left:635px;top:0;width:64px;font-size:24px;text-align:center">3.9</p><p style="position:absolute;left:704px;top:0;width:64px;font-size:24px;text-align:center">4.2</p></div><p style="width:144px;font-size:30px;font-weight:700;text-align:right">0.3</p></div>
+</div>
+<p style="font-size:24px;color:#5A5A55">주임단 설문 6번 vs 관리자 설문 5번 · 5점 척도 평균 · 차이 큰 순</p>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">06</p>
+</div>
+<aside>같은 질문을 양쪽에 물은 결과. 점 사이 거리가 멀수록 서로 다르게 느낀다는 뜻입니다. 위의 세 항목이 조별 토의 주제 후보입니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="understand">
+<section id="understand" style="background:#EFEDE7;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">이해한다 vs 이해받는다</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">양쪽 모두 이해하는 만큼 이해받지 못한다고 느낍니다</h2>
+</div>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px;background:#FDFCFA;border-radius:16px;padding:48px">
+<p style="font-size:30px;font-weight:700;color:#9A5B00">주임단</p>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:24px"><p style="font-size:30px">나는 관리자·RP의 업무를 이해한다</p><p style="font-size:72px;font-weight:700;font-variant-numeric:tabular-nums">3.9</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:24px"><p style="font-size:30px">관리자·RP는 내 역할을 이해한다</p><p style="font-size:72px;font-weight:700;color:#9A5B00;font-variant-numeric:tabular-nums">2.6</p></div>
+<p style="font-size:30px;font-weight:700;background:#FBEBCB;padding:12px 24px;border-radius:999px;align-self:flex-start">차이 1.3</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:28px;background:#FDFCFA;border-radius:16px;padding:48px">
+<p style="font-size:30px;font-weight:700;color:#3F5468">관리자</p>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:24px"><p style="font-size:30px">나는 주임단의 역할을 이해한다</p><p style="font-size:72px;font-weight:700;font-variant-numeric:tabular-nums">4.2</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:24px"><p style="font-size:30px">주임단은 내 업무를 이해한다</p><p style="font-size:72px;font-weight:700;color:#3F5468;font-variant-numeric:tabular-nums">3.7</p></div>
+<p style="font-size:30px;font-weight:700;background:#E1E6EB;padding:12px 24px;border-radius:999px;align-self:flex-start">차이 0.5</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">07</p>
+</div>
+<aside>주임단 6-2·6-3, 관리자 5-2·5-3 교차 비교. 주임단 쪽 차이가 더 크다는 점을 짚되, 어느 쪽이 맞다는 해석은 피하고 “왜 이렇게 느끼는지”를 조별로 이야기하게 합니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="hard">
+<section id="hard" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">함께 일할 때 어려운 점</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">주임단은 촉박함을, 관리자는 공유 부족을 꼽았습니다</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:center">
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px;font-weight:600">주임단</p></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:24px;height:24px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px;font-weight:600">관리자</p></div>
+<p style="font-size:24px;color:#5A5A55">· 1인당 최대 2개 선택 · 응답자 대비 비율</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px;font-weight:700">촉박한 요청</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:522px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px;font-weight:700">58%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:189px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px">21%</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px;font-weight:700">서류·정보 누락</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:423px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px;font-weight:700">47%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:162px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px">18%</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px;font-weight:700">처리 결과 공유 부족</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:126px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px">14%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:396px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px;font-weight:700">44%</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px">업무 기준·규정에 대한 이해 차이</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:225px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px">25%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:351px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px">39%</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px">역할 범위를 벗어난 요청</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:306px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px">34%</p></div><div style="display:flex;align-items:center;gap:12px"><p style="font-size:24px;color:#5A5A55">관리자 설문에는 없는 선택지</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px">연락 방식·시간대</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:99px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px">11%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:207px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px">23%</p></div></div></div>
+<div style="display:flex;align-items:center"><p style="width:520px;font-size:28px">감정적 대립·태도</p><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:12px"><div style="width:81px;height:26px;background:#FFA500;border-radius:4px"></div><p style="font-size:24px">9%</p></div><div style="display:flex;align-items:center;gap:12px"><div style="width:108px;height:26px;background:#3F5468;border-radius:4px"></div><p style="font-size:24px">12%</p></div></div></div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님 · 주임단 7번 vs 관리자 6번</p>
+<p style="font-size:24px;color:#8A8780">08</p>
+</div>
+<aside>같은 어려움을 서로 반대편에서 보고 있는 장면. 주임단의 “촉박한 요청·서류 누락”과 관리자의 “처리 결과 공유 부족”은 같은 흐름의 앞뒤일 수 있습니다. 조별 토의에서 이 연결을 짚어 줍니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="issues">
+<section id="issues" data-section="현장이 꼽은 문제와 서로에게 바라는 점" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">현장이 꼽은 문제</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">업무 기준의 일관성과 업무량이 가장 낮게 나왔습니다</h2>
+</div>
+<div style="display:flex;gap:64px;flex:1">
+<div style="width:820px;display:flex;flex-direction:column;gap:20px">
+<h3 style="font-size:30px;font-weight:700">현황 진단 · 5점 척도 평균</h3>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px;font-weight:600">기준이 지점마다 일관된다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:96px;height:28px;background:#FFA500;border-radius:4px"></div></div><p style="font-size:26px;font-weight:700">2.2</p></div>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px;font-weight:600">업무량이 적정하다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:112px;height:28px;background:#FFA500;border-radius:4px"></div></div><p style="font-size:26px;font-weight:700">2.4</p></div>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px">교육·성장 기회가 충분하다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:120px;height:28px;background:#E5C68A;border-radius:4px"></div></div><p style="font-size:26px">2.5</p></div>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px">전산 시스템이 도움이 된다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:136px;height:28px;background:#E5C68A;border-radius:4px"></div></div><p style="font-size:26px">2.7</p></div>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px">본사 문의에 신속히 답을 얻는다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:160px;height:28px;background:#E5C68A;border-radius:4px"></div></div><p style="font-size:26px">3.0</p></div>
+<div style="display:flex;align-items:center;gap:16px"><p style="width:400px;font-size:26px">내 역할과 범위가 명확하다</p><div style="width:320px;height:28px;background:#ECE9E2;border-radius:4px;display:flex"><div style="width:168px;height:28px;background:#E5C68A;border-radius:4px"></div></div><p style="font-size:26px">3.1</p></div>
+<p style="font-size:24px;color:#5A5A55">주임단 설문 10번 · 낮은 순</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<h3 style="font-size:30px;font-weight:700">주관식에서 반복된 주제</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:12px;padding:20px 28px"><p style="font-size:28px;font-weight:600">지점마다 다른 업무 기준</p><p style="font-size:26px;font-weight:700;color:#9A5B00">18건</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:12px;padding:20px 28px"><p style="font-size:28px;font-weight:600">마감 직전에 몰리는 청약</p><p style="font-size:26px;font-weight:700;color:#9A5B00">14건</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:12px;padding:20px 28px"><p style="font-size:28px;font-weight:600">서류 반려·재요청 반복</p><p style="font-size:26px;font-weight:700;color:#9A5B00">11건</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:12px;padding:20px 28px"><p style="font-size:28px;font-weight:600">범위 밖 업무 요청</p><p style="font-size:26px;font-weight:700;color:#9A5B00">9건</p></div>
+<p style="font-size:24px;color:#5A5A55">주임단 설문 4·14·15번 주관식을 주제별로 분류</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">예시 수치 · 실제 응답 결과 아님</p>
+<p style="font-size:24px;color:#8A8780">09</p>
+</div>
+<aside>왼쪽은 주임단이 느끼는 현재 업무 환경, 오른쪽은 주관식에서 반복된 주제. 실제 결과에서는 주제 분류 후 건수가 많은 4개만 보여 줍니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="voices">
+<section id="voices" style="background:#EFEDE7;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">서로에게</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">바라는 점과 고마운 점을 함께 전합니다</h2>
+</div>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:700;color:#9A5B00">주임단이 관리자·RP에게</p>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FDFCFA;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#9A5B00">바라는 점</p><p style="font-size:30px">[대표 의견 1 · 예) 서류는 마감 하루 전까지 보내 주세요]</p></div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FDFCFA;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#9A5B00">바라는 점</p><p style="font-size:30px">[대표 의견 2]</p></div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBEBCB;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#9A5B00">고마웠던 점</p><p style="font-size:30px">[대표 의견 3]</p></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:700;color:#3F5468">관리자가 주임단에게</p>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FDFCFA;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#3F5468">바라는 점</p><p style="font-size:30px">[대표 의견 1 · 예) 처리 결과를 바로 알려 주세요]</p></div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FDFCFA;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#3F5468">바라는 점</p><p style="font-size:30px">[대표 의견 2]</p></div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#E1E6EB;border-radius:12px;padding:28px 32px"><p style="font-size:24px;font-weight:700;color:#3F5468">고마웠던 점</p><p style="font-size:30px">[대표 의견 3]</p></div>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">[ ] 안은 실제 주관식에서 발췌할 자리 · 지점명·인물이 드러나는 표현은 다듬어 사용</p>
+<p style="font-size:24px;color:#8A8780">10</p>
+</div>
+<aside>주임단 8·9번, 관리자 8·9번. 바라는 점만 보여 주면 불만 성토가 되기 쉬워 고마웠던 점을 같은 비중으로 함께 띄웁니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="discuss">
+<section id="discuss" data-section="조별 토의 안내" data-transition="fade" style="background:#FFA500;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;letter-spacing:1px">조별 토의</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.15">차이가 가장 컸던 세 가지를 함께 풀어 봅니다</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFF4DE;border-radius:16px;padding:44px">
+<p style="font-size:24px;font-weight:700;color:#9A4F00">시간 여유 · 차이 1.5</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.35">요청이 여유를 두고 오가려면 우리 사무실에서 무엇부터 바꿀 수 있을까?</h3>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFF4DE;border-radius:16px;padding:44px">
+<p style="font-size:24px;font-weight:700;color:#9A4F00">역할 이해 · 차이 1.1</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.35">주임단의 역할을 관리자·RP와 같은 기준으로 이해하려면 무엇이 필요할까?</h3>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFF4DE;border-radius:16px;padding:44px">
+<p style="font-size:24px;font-weight:700;color:#9A4F00">서류·정보 · 차이 1.1</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.35">서류와 정보가 한 번에 정확하게 오가게 하려면 어떤 약속이 필요할까?</h3>
+</div>
+</div>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">③ 문제 정의 30분</p>
+<p style="font-size:28px;font-weight:700">→</p>
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">④-1 개선방향 40분</p>
+<p style="font-size:28px;font-weight:700">→</p>
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">④-2 조별 발표 30분</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#4A3200">토의 주제는 실제 결과의 격차 TOP3로 교체</p>
+<p style="font-size:24px;color:#4A3200">11</p>
+</div>
+<aside>조별로 한 주제씩 맡거나, 모든 조가 세 주제 중 하나를 골라 토의합니다. 문제는 HR이 제기하고 해결책은 주임단이 스스로 찾는 방향. 개선방향 도출 후 조별 발표로 이어집니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="define">
+<section id="define" data-transition="fade" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">③ 문제 정의 · 30분</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">먼저 문제를 정확히 정의합니다</h2>
+</div>
+<div style="display:flex;gap:48px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;flex:none">1</p>
+<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700">우리 조 주제의 문제 하나 고르기</h3><p style="font-size:26px;color:#5A5A55">설문 결과 중 가장 공감 가는 장면 · 5분</p></div>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;flex:none">2</p>
+<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700">현장 사례로 구체화하기</h3><p style="font-size:26px;color:#5A5A55">언제, 어디서, 어떤 일이 있었나 · 10분</p></div>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;flex:none">3</p>
+<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700">원인 찾기</h3><p style="font-size:26px;color:#5A5A55">“왜 반복될까?”를 세 번 묻기 · 15분</p></div>
+</div>
+</div>
+<div style="width:660px;display:flex;flex-direction:column;gap:20px;background:#1E1E1C;color:#F7F6F3;border-radius:16px;padding:40px 44px">
+<p style="font-size:24px;font-weight:700;color:#FFA500;letter-spacing:1px">결과물 · 문제 정의서</p>
+<div style="display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #3A3A36;padding:0 0 18px"><h3 style="font-size:32px;font-weight:700">문제</h3><p style="font-size:26px;color:#C9C5BC">한 문장으로</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #3A3A36;padding:0 0 18px"><h3 style="font-size:32px;font-weight:700">실제 사례</h3><p style="font-size:26px;color:#C9C5BC">우리 사무실에서 있었던 일</p></div>
+<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700">원인</h3><p style="font-size:26px;color:#C9C5BC">왜 반복되는가</p></div>
+</div>
+</div>
+<div style="display:flex;gap:16px;align-items:center;background:#FBEBCB;border-radius:999px;padding:14px 32px;align-self:flex-start">
+<p style="font-size:28px;font-weight:700">해결책은 아직 말하지 않습니다</p>
+<p style="font-size:28px;color:#5A5A55">떠오르면 ‘아이디어 주차장’에 메모해 두고 ④-1에서 꺼냅니다</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">1일차 · 핵심과제 1 업무개선 워크숍</p>
+<p style="font-size:24px;color:#8A8780">12</p>
+</div>
+<aside>③은 진단, ④-1은 처방입니다. 여기서는 “무엇이 문제이고 왜 생기나”까지만 정리합니다. 토의가 해결책으로 넘어가면 진행자가 아이디어 주차장(전지 한쪽 칸)에 적게 하고 다시 원인으로 돌아옵니다. 문제 정의서는 ④-1의 출발점이 됩니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="solve">
+<section id="solve" data-transition="fade" style="background:#EFEDE7;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">④-1 개선방향 도출 · 40분</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">정의한 문제에서 해결책을 찾습니다</h2>
+</div>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">아이디어 내기 15분</p>
+<p style="font-size:28px;font-weight:700">→</p>
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">실행 주체로 나누기 15분</p>
+<p style="font-size:28px;font-weight:700">→</p>
+<p style="font-size:28px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 24px;border-radius:999px">개선안 1~2개 정리 10분</p>
+</div>
+<div style="display:flex;gap:28px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FDFCFA;border-radius:16px;padding:36px 40px;border-top:8px solid #FFA500">
+<h3 style="font-size:34px;font-weight:700">내가 · 우리 사무실에서</h3>
+<p style="font-size:26px;color:#5A5A55;line-height:1.5">월요일부터 바로 바꿀 수 있는 것</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FDFCFA;border-radius:16px;padding:36px 40px;border-top:8px solid #3F5468">
+<h3 style="font-size:34px;font-weight:700">관리자·RP와 함께</h3>
+<p style="font-size:26px;color:#5A5A55;line-height:1.5">서로 약속이 필요한 것</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FDFCFA;border-radius:16px;padding:36px 40px;border-top:8px solid #8A8780">
+<h3 style="font-size:34px;font-weight:700">본사에 요청</h3>
+<p style="font-size:26px;color:#5A5A55;line-height:1.5">기준·제도·시스템이 바뀌어야 하는 것</p>
+</div>
+</div>
+<div style="display:flex;gap:20px;align-items:center">
+<p style="font-size:28px;font-weight:700">결과물 · 개선안</p>
+<p style="font-size:28px;background:#FDFCFA;border:1px solid #E4E1DA;padding:10px 24px;border-radius:999px">무엇을</p>
+<p style="font-size:28px;background:#FDFCFA;border:1px solid #E4E1DA;padding:10px 24px;border-radius:999px">누가</p>
+<p style="font-size:28px;background:#FDFCFA;border:1px solid #E4E1DA;padding:10px 24px;border-radius:999px">언제부터</p>
+<p style="font-size:26px;color:#5A5A55">전지 한 장에 정리</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">1일차 · 핵심과제 1 업무개선 워크숍</p>
+<p style="font-size:24px;color:#8A8780">13</p>
+</div>
+<aside>③의 문제 정의서와 아이디어 주차장 메모에서 시작합니다. 아이디어를 실행 주체 세 칸으로 나누면 “본사가 해 줘야 한다”로만 흐르지 않고, 주임단이 스스로 할 수 있는 것이 함께 보입니다. 마지막 5분은 전지 정리와 사진 올리기에 씁니다.</aside>
+</section>
+</div>
+<div class="sl on-dark" data-id="upload">
+<section id="upload" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;align-items:center;gap:96px">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:28px;font-weight:700;color:#FFA500;letter-spacing:1px">④-1 마무리 · 16:15 ~ 16:20</p>
+<h1 style="font-size:88px;font-weight:700;line-height:1.15">조별 결과물 사진을<br>올려 주세요</h1>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:30px;font-weight:600;background:#2C2C29;padding:12px 26px;border-radius:999px"><span style="color:#FFA500">1</span> 조 선택</p>
+<p style="font-size:30px;font-weight:600;background:#2C2C29;padding:12px 26px;border-radius:999px"><span style="color:#FFA500">2</span> 전지 촬영</p>
+<p style="font-size:30px;font-weight:600;background:#2C2C29;padding:12px 26px;border-radius:999px"><span style="color:#FFA500">3</span> 올리기</p>
+</div>
+<p style="font-size:32px;color:#C9C5BC;line-height:1.5">조장 1명만 올리면 됩니다. 한 조 최대 3장,<br>올린 사진은 조별 발표 때 앞 화면에 그대로 띄웁니다.</p>
+<div class="teamchips"></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;align-items:center">
+<div style="width:460px;height:460px;background:#FFFFFF;border-radius:28px;padding:24px;display:flex;align-items:center;justify-content:center">
+<img src="qr-photo.svg" alt="사진 올리기 페이지 QR 코드" style="width:412px;height:412px;object-fit:contain">
+</div>
+<p style="font-size:24px;color:#8F8B83">richncohckim-bot.github.io/27jd-workshop/photo.html</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8F8B83">진행 화면에서는 조별 업로드 현황이 함께 보입니다</p>
+<p style="font-size:24px;color:#8F8B83">14</p>
+</div>
+<aside>④-1 종료 5분 전에 띄웁니다. 진행 화면(screen.html)에서는 이 장에 1~10조 업로드 현황이 실시간으로 함께 표시되니, 아직 안 올린 조를 바로 챙길 수 있습니다. 사진은 전지를 정면에서, 가로로 찍게 안내합니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="present">
+<section id="present" data-transition="fade" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">④-2 조별 발표 · 30분</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">조당 3분, 세 가지만 말합니다</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<p style="font-size:72px;font-weight:700;color:#FFA500;line-height:1">01</p>
+<h3 style="font-size:40px;font-weight:700">문제</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">우리 조가 정의한 문제와 실제 사례</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<p style="font-size:72px;font-weight:700;color:#FFA500;line-height:1">02</p>
+<h3 style="font-size:40px;font-weight:700">원인</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">왜 반복되는지</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1E1E1C;color:#F7F6F3;border-radius:16px;padding:44px">
+<p style="font-size:72px;font-weight:700;color:#FFA500;line-height:1">03</p>
+<h3 style="font-size:40px;font-weight:700">개선안</h3>
+<p style="font-size:28px;color:#C9C5BC;line-height:1.5">무엇을 · 누가 · 언제부터</p>
+</div>
+</div>
+<div style="display:flex;gap:20px;align-items:center">
+<p style="font-size:28px;font-weight:600;background:#FBEBCB;padding:12px 28px;border-radius:999px">발표 순서 1조 → 10조</p>
+<p style="font-size:28px;color:#5A5A55">앞 화면에 각 조가 올린 결과물 사진을 띄웁니다</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">다음 장에서 조별 사진을 띄웁니다 · 클리커로 다음 조</p>
+<p style="font-size:24px;color:#8A8780">15</p>
+</div>
+<aside>이 장으로 발표 형식을 안내합니다. 진행 화면(screen.html)에서는 다음 장이 조별 사진 보드이며, 클리커(→)를 누를 때마다 1조부터 다음 조로 넘어가고 사진을 누르면 크게 보입니다. 10개 조면 30분이 꽉 차므로 질문은 받지 않고, 3분 타이머를 함께 띄우면 좋습니다. 발표 직후 사진은 이미 시트에 모여 있어 저녁 동안 결과 정리에 바로 씁니다.</aside>
+</section>
+</div>
+<div class="sl live" data-id="board-photos">
+<div class="board">
+ <div class="bhead"><div><div class="eyebrow">④-2 조별 발표</div><h2 id="galTitle">1조 발표</h2></div><div class="tabs" id="galTabs"></div></div>
+ <div class="photos" id="galPhotos"></div>
+ <div class="bfoot"><span>클리커 → 다음 조 · 사진 누르면 크게 · R 새로고침</span><span id="galPos"></span></div>
+</div>
+</div>
+<div class="sl " data-id="day1end">
+<section id="day1end" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:700;color:#FFA500;letter-spacing:1px">1일차 마무리</p>
+<h1 style="font-size:96px;font-weight:700;line-height:1.15">오늘 우리는</h1>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;border-top:4px solid #FFA500;padding:28px 0 0">
+<h3 style="font-size:40px;font-weight:700">차이를 확인했고</h3>
+<p style="font-size:28px;color:#C9C5BC">같은 일을 서로 다르게 보는 지점</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;border-top:4px solid #FFA500;padding:28px 0 0">
+<h3 style="font-size:40px;font-weight:700">문제를 정의했고</h3>
+<p style="font-size:28px;color:#C9C5BC">사례와 원인까지</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;border-top:4px solid #FFA500;padding:28px 0 0">
+<h3 style="font-size:40px;font-weight:700">개선안을 만들었습니다</h3>
+<p style="font-size:28px;color:#C9C5BC">무엇을 · 누가 · 언제부터</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2C2C29;border-radius:16px;padding:32px 40px">
+<p style="font-size:26px;font-weight:700;color:#FFA500">18:00 ~ 20:00</p>
+<h3 style="font-size:36px;font-weight:700">소통의 시간 · 본사 임직원과 석식</h3>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2C2C29;border-radius:16px;padding:32px 40px">
+<p style="font-size:26px;font-weight:700;color:#FFA500">내일 09:00</p>
+<h3 style="font-size:36px;font-weight:700">3층 교육장 · 조식은 08:30까지</h3>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8F8B83">오늘 만든 개선안은 내일 아침 전체 결과로 정리해 공유합니다</p>
+<p style="font-size:24px;color:#8F8B83">16</p>
+</div>
+<aside>16:50~17:00 클로징. 하루를 세 문장으로 정리하고 저녁 일정을 안내합니다. 조별 사진과 전지는 HR이 회수해 소통의 시간 동안 공통 문제 TOP 3와 해결 아이디어로 정리하고, 2일차 18·19번 장에 채워 넣습니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="day2">
+<section id="day2" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<img src="logo.svg" alt="GoodRich 로고" style="width:300px;height:52px;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:32px">
+<p style="font-size:30px;font-weight:600;color:#FFA500;letter-spacing:1px">2027 RP 주임단 워크숍 · 2일차 마무리</p>
+<h1 style="font-size:120px;font-weight:700;line-height:1.1;color:#F7F6F3">어제 우리가<br>찾은 것</h1>
+<p style="font-size:40px;color:#C9C5BC">워크숍 결과 공유 · 한줄다짐 · 만족도 조사</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#1E1E1C;background:#FFA500;padding:8px 20px;border-radius:999px">11:20 ~ 12:00</p>
+<p style="font-size:24px;color:#C9C5BC">40분</p>
+</div>
+<aside>2일차 ③ 디지털·AI 교육이 끝난 뒤 이어지는 마무리 세션입니다. 결과 공유 15분 → 한줄다짐 15분 → 만족도 조사 10분.</aside>
+</section>
+</div>
+<div class="sl " data-id="top3">
+<section id="top3" data-transition="fade" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">④ 워크숍 결과 공유</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">여러 조에서 공통으로 나온 문제 TOP 3</h2>
+</div>
+<div style="display:flex;gap:28px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#1E1E1C;color:#F7F6F3;border-radius:16px;padding:44px">
+<div style="display:flex;justify-content:space-between;align-items:center"><p style="font-size:96px;font-weight:700;color:#FFA500;line-height:1">1</p><p style="font-size:26px;font-weight:700;color:#1E1E1C;background:#FFA500;padding:8px 20px;border-radius:999px">[n]개 조</p></div>
+<h3 style="font-size:40px;font-weight:700;line-height:1.3">[공통 문제 1]</h3>
+<p style="font-size:28px;color:#C9C5BC;line-height:1.5">대표 원인 · [원인 요약]</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<div style="display:flex;justify-content:space-between;align-items:center"><p style="font-size:96px;font-weight:700;color:#FFA500;line-height:1">2</p><p style="font-size:26px;font-weight:700;background:#FBEBCB;padding:8px 20px;border-radius:999px">[n]개 조</p></div>
+<h3 style="font-size:40px;font-weight:700;line-height:1.3">[공통 문제 2]</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">대표 원인 · [원인 요약]</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<div style="display:flex;justify-content:space-between;align-items:center"><p style="font-size:96px;font-weight:700;color:#FFA500;line-height:1">3</p><p style="font-size:26px;font-weight:700;background:#FBEBCB;padding:8px 20px;border-radius:999px">[n]개 조</p></div>
+<h3 style="font-size:40px;font-weight:700;line-height:1.3">[공통 문제 3]</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">대표 원인 · [원인 요약]</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">[ ] 안은 1일차 조별 결과물로 채움 · 같은 문제를 꼽은 조 수 기준</p>
+<p style="font-size:24px;color:#8A8780">18</p>
+</div>
+<aside>11:20~11:35 결과 공유. 1일차 저녁에 조별 사진·전지를 보고 같은 문제를 꼽은 조 수가 많은 순으로 세 가지를 고릅니다. 조별 발표를 다시 하지 않고, “여러분이 공통으로 짚은 문제는 이 세 가지였습니다”로 압축해 7분 안에 전달합니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="ideas">
+<section id="ideas" data-transition="fade" style="background:#EFEDE7;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">해결 아이디어</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">주임단이 직접 찾은 해결 아이디어</h2>
+</div>
+<div style="display:grid;grid-template-columns:260px 1fr 1fr 1fr;gap:12px;flex:1">
+<div></div>
+<p style="font-size:26px;font-weight:700;border-bottom:6px solid #FFA500;padding:0 0 10px">내가 · 우리 사무실에서</p>
+<p style="font-size:26px;font-weight:700;border-bottom:6px solid #3F5468;padding:0 0 10px">관리자·RP와 함께</p>
+<p style="font-size:26px;font-weight:700;border-bottom:6px solid #8A8780;padding:0 0 10px">본사에 요청</p>
+<div style="display:flex;flex-direction:column;justify-content:center;gap:4px;background:#1E1E1C;color:#F7F6F3;border-radius:12px;padding:20px 24px"><p style="font-size:24px;font-weight:700;color:#FFA500">TOP 1</p><p style="font-size:26px;font-weight:700">[문제 1]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;flex-direction:column;justify-content:center;gap:4px;background:#1E1E1C;color:#F7F6F3;border-radius:12px;padding:20px 24px"><p style="font-size:24px;font-weight:700;color:#FFA500">TOP 2</p><p style="font-size:26px;font-weight:700">[문제 2]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;flex-direction:column;justify-content:center;gap:4px;background:#1E1E1C;color:#F7F6F3;border-radius:12px;padding:20px 24px"><p style="font-size:24px;font-weight:700;color:#FFA500">TOP 3</p><p style="font-size:26px;font-weight:700">[문제 3]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+<div style="display:flex;align-items:center;background:#FDFCFA;border-radius:12px;padding:20px 24px"><p style="font-size:26px;line-height:1.4">[아이디어]</p></div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">본사 요청 사항은 전략HR팀이 정리해 [회신 시점]까지 공유</p>
+<p style="font-size:24px;color:#8A8780">19</p>
+</div>
+<aside>TOP 3마다 조별 개선안을 실행 주체 세 칸으로 나눠 대표 아이디어 하나씩 넣습니다. “내가 · 우리 사무실에서” 칸을 먼저 읽어 주면 바로 다음 순서인 한줄다짐으로 자연스럽게 이어집니다. 본사 요청 칸은 회신 시점을 약속할 수 있을 때만 하단 문구를 남깁니다.</aside>
+</section>
+</div>
+<div class="sl on-orange" data-id="pledge">
+<section id="pledge" data-transition="fade" style="background:#FFA500;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;align-items:center;gap:96px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:28px;font-weight:700;letter-spacing:1px">한줄다짐 · 3분</p>
+<h1 style="font-size:88px;font-weight:700;line-height:1.15">월요일부터 실천할<br>한 가지를 적어 주세요</h1>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:30px;background:#FFF4DE;border-radius:14px;padding:18px 28px">서류 요청은 받는 즉시 필요한 항목을 한 번에 안내하겠습니다</p>
+<p style="font-size:30px;background:#FFF4DE;border-radius:14px;padding:18px 28px">처리한 결과는 그날 안에 관리자님께 먼저 알려 드리겠습니다</p>
+</div>
+<div style="display:flex;gap:14px;align-items:center">
+<p style="font-size:26px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 22px;border-radius:999px">행동 하나</p>
+<p style="font-size:26px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 22px;border-radius:999px">월요일에 바로</p>
+<p style="font-size:26px;font-weight:600;background:#1E1E1C;color:#FDFCFA;padding:10px 22px;border-radius:999px">60자 이내</p>
+</div>
+<div class="bigcount" data-k="pledge"><b>0</b><span>개의 다짐이 모였습니다</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;align-items:center">
+<div style="width:460px;height:460px;background:#FFFFFF;border-radius:28px;padding:24px;display:flex;align-items:center;justify-content:center">
+<img src="qr-pledge.svg" alt="한줄다짐 페이지 QR 코드" style="width:412px;height:412px;object-fit:contain">
+</div>
+<p style="font-size:24px;color:#4A3200">richncohckim-bot.github.io/27jd-workshop/pledge.html</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#4A3200">이름은 선택 · 진행 화면에서는 모인 다짐 수가 함께 보입니다</p>
+<p style="font-size:24px;color:#4A3200">20</p>
+</div>
+<aside>11:35~11:50 중 앞 5분. 바로 앞 장의 “내가 · 우리 사무실에서” 아이디어를 떠올리며 적게 합니다. 진행 화면(screen.html)에서는 이 장에 모인 다짐 수가 실시간으로 올라가 참여를 끌어냅니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="wall">
+<section id="wall" data-transition="fade" style="background:#F7F6F3;color:#1E1E1C;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;font-weight:700;color:#9A5B00;letter-spacing:1px">함께 읽기 · 10분</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.15">서로의 다짐을 함께 읽어 봅니다</h2>
+</div>
+<div style="display:flex;gap:28px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center">1</p>
+<h3 style="font-size:36px;font-weight:700">다짐 보드 띄우기</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">모인 다짐이 카드로 한 화면에 모입니다</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FDFCFA;border:1px solid #E4E1DA;border-radius:16px;padding:44px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center">2</p>
+<h3 style="font-size:36px;font-weight:700">한 장씩 크게 읽기</h3>
+<p style="font-size:28px;color:#5A5A55;line-height:1.5">진행자가 몇 개를 골라 소리 내어 읽습니다</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1E1E1C;color:#F7F6F3;border-radius:16px;padding:44px">
+<p style="font-size:30px;font-weight:700;color:#1E1E1C;background:#FFA500;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center">3</p>
+<h3 style="font-size:36px;font-weight:700">두세 명의 한마디</h3>
+<p style="font-size:28px;color:#C9C5BC;line-height:1.5">“이 다짐을 적은 이유는…”</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8A8780">다음 장에서 모인 다짐을 띄웁니다 · 카드 누르면 크게</p>
+<p style="font-size:24px;color:#8A8780">21</p>
+</div>
+<aside>이 장으로 방법을 안내합니다. 진행 화면(screen.html)에서는 다음 장이 다짐 보드이며, 5초마다 새 다짐이 더해지고 12개가 넘으면 페이지가 나뉩니다(클리커 → 다음 페이지, P 자동 넘김). 카드를 누르거나 Space를 누르면 한 장씩 크게 보입니다. 부적절한 카드는 카드 오른쪽 위 ×로 화면에서 숨길 수 있습니다.</aside>
+</section>
+</div>
+<div class="sl live" data-id="board-wall">
+<div class="board">
+ <div class="bhead"><div><div class="eyebrow">함께 읽기</div><h2>월요일부터, 우리는</h2></div><div class="wcount"><b id="wallCount">0</b> 개의 다짐</div></div>
+ <div class="cards" id="cards"></div>
+ <div class="dots" id="dots"></div>
+ <div class="bfoot"><span>카드 누르면 크게 · Space 한 장씩 · A 자동 넘김 · × 숨기기</span><span id="wallPage"></span></div>
+ <div class="spot" id="spot"><q id="spotText"></q><span id="spotWho"></span><div class="hint">Space · 클릭 다음 · Esc 닫기</div></div>
+</div>
+</div>
+<div class="sl on-dark" data-id="survey">
+<section id="survey" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:row;align-items:center;gap:96px">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:28px;font-weight:700;color:#FFA500;letter-spacing:1px">만족도 조사 · 3분</p>
+<h1 style="font-size:88px;font-weight:700;line-height:1.15">이틀간의 워크숍,<br>어떠셨나요?</h1>
+<p style="font-size:32px;color:#C9C5BC;line-height:1.5">응답은 익명으로 처리되며<br>다음 워크숍을 준비하는 데에만 활용합니다.</p>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:28px;font-weight:600;background:#2C2C29;padding:10px 24px;border-radius:999px">전반 평가</p>
+<p style="font-size:28px;font-weight:600;background:#2C2C29;padding:10px 24px;border-radius:999px">프로그램별</p>
+<p style="font-size:28px;font-weight:600;background:#2C2C29;padding:10px 24px;border-radius:999px">운영</p>
+<p style="font-size:28px;font-weight:600;background:#2C2C29;padding:10px 24px;border-radius:999px">의견</p>
+</div>
+<div class="bigcount" data-k="survey"><b>0</b><span>명 응답</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;align-items:center">
+<div style="width:460px;height:460px;background:#FFFFFF;border-radius:28px;padding:24px;display:flex;align-items:center;justify-content:center">
+<img src="qr-feedback.svg" alt="만족도 조사 페이지 QR 코드" style="width:412px;height:412px;object-fit:contain">
+</div>
+<p style="font-size:24px;color:#8F8B83">richncohckim-bot.github.io/27jd-workshop/feedback.html</p>
+</div>
+<div style="position:absolute;left:128px;right:128px;bottom:64px;height:36px;display:flex;justify-content:space-between;align-items:center">
+<p style="font-size:24px;color:#8F8B83">익명 · 진행 화면에서는 응답 수가 함께 보입니다</p>
+<p style="font-size:24px;color:#8F8B83">22</p>
+</div>
+<aside>11:50~12:00. 자리에서 바로 응답하게 하고, 진행 화면에서 응답 수가 참석 인원에 가까워지면 마무리 장으로 넘어갑니다.</aside>
+</section>
+</div>
+<div class="sl " data-id="thanks">
+<section id="thanks" data-transition="fade" style="background:#1E1E1C;color:#F7F6F3;font-family:'IBM Plex Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#FFA500"></div>
+<img src="logo.svg" alt="GoodRich 로고" style="width:300px;height:52px;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:120px;font-weight:700;line-height:1.1;color:#F7F6F3">함께해 주셔서<br>감사합니다</h1>
+<p style="font-size:40px;color:#C9C5BC">월요일, 각자의 자리에서 다짐을 시작합니다</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#1E1E1C;background:#FFA500;padding:8px 20px;border-radius:999px">12:00 중식 후 귀가</p>
+<p style="font-size:24px;color:#C9C5BC">문의 · 전략HR팀</p>
+</div>
+<aside>마무리 인사. 중식·귀가 동선과 보상휴가 등 남은 안내가 있으면 이 장에서 함께 전합니다.</aside>
+</section>
+</div>
+  <div class="zoom" id="zoom"><img id="zoomImg" alt="조별 결과물 확대"></div>
+  <div class="black" id="black"></div>
+</div>
+
+<div class="hud" id="hud">
+  <button id="bPrev" title="이전 (←)">◀</button>
+  <span class="pos" id="pos"></span>
+  <button id="bNext" title="다음 (→)">▶</button>
+  <button id="bGrid" title="G">목록 G</button>
+  <button id="bNotes" title="N">메모 N</button>
+  <button id="bPres" title="P">발표자 창 P</button>
+  <button id="bFs" title="F">전체 화면 F</button>
+</div>
+<div class="notes" id="notes"></div>
+<div class="overlay" id="gridWrap"><div class="grid" id="grid"></div></div>
+<div class="jump" id="jump"></div>
+
+<div class="simp" id="simp">
+  <h4>리허설 모드 · 가상 참가자</h4>
+  <div class="cnt"><div>사진<b id="sc1">0</b></div><div>다짐<b id="sc2">0</b></div><div>만족도<b id="sc3">0</b></div></div>
+  <label><input type="checkbox" id="simAuto" checked> 장면에 맞춰 자동 실행</label>
+  <label>속도 <select id="simSpeed"><option value="real">실제 시간대로</option><option value="fast" selected>빠르게 (1분)</option><option value="now">바로</option></select></label>
+  <div>
+    <button data-sim="photos">사진 올리기</button><button data-sim="pledges">다짐 82개</button><button data-sim="surveys">만족도 응답</button>
+    <button data-sim="reset" class="warn">초기화</button>
+  </div>
+  <div class="log" id="simLog"></div>
+</div>
+
+<aside class="side" id="side">
+  <div class="clock"><b id="clock">--:--</b><span id="elapsed">경과 00:00</span><button id="resetTimer">경과 초기화</button></div>
+  <div class="cur"><div class="t" id="pTime"></div><h3 id="pTitle"></h3><p id="pNotes"></p></div>
+  <div class="nxt">다음 · <b id="pNext"></b></div>
+  <div class="ctl"><button class="prev" id="pPrev">◀ 이전</button><button id="pNextBtn">다음 ▶</button></div>
+  <div class="nxt" style="font-size:13px">이 창에서 넘겨도 프로젝터 창이 함께 넘어갑니다. ← → / PageUp PageDown / Space</div>
+</aside>
+
+<script>
+const DECK = [{"id": "cover", "title": "현장에서 본 우리의 일", "section": "세션 도입", "time": "1일차 14:40 · 설문 결과 공유", "notes": "세션 시작. 사전 설문은 주임단과 관리자(BM·SBM·RM)에게 같은 질문을 서로 반대 방향으로 물었습니다. 오늘은 “누가 맞다”가 아니라 “어디서 다르게 보는가”를 함께 확인합니다."}, {"id": "respondents", "title": "주임단 64명, 관리자 112명이 답했습니다", "section": "응답자와 주임단 업무 현황", "time": "1일차 14:42", "notes": "응답 현황. 실제 결과에서는 5명 미만인 집단(예: 본부장, 근속 구간 일부)은 따로 해석하지 않습니다. 익명성 보호를 위해 세부 교차 분석은 화면에 띄우지 않습니다."}, {"id": "time", "title": "신계약과 RP 인사에 시간이 몰려 있습니다", "section": "응답자와 주임단 업무 현황", "time": "1일차 14:44", "notes": "주임단 3번. 시간을 가장 많이 쓰는 업무 영역. 다음 장에서 이 영역들을 두고 “누구의 일인가”를 양쪽이 어떻게 보는지 이어서 봅니다."}, {"id": "whose", "title": "사무실 관리와 준법감시에서 생각이 갈립니다", "section": "응답자와 주임단 업무 현황", "time": "1일차 14:46", "notes": "핵심 장면. 왼쪽은 관리자가 “주임단 일”이라고 본 비율, 오른쪽은 주임단이 “우리 일이 아니다”라고 본 비율. 양쪽 막대가 모두 긴 영역이 인식이 엇갈리는 곳입니다. 예시에서는 사무실 관리와 준법감시."}, {"id": "requests", "title": "주 1회 이상이라는 답, 주임단 47% · 관리자 15%", "section": "응답자와 주임단 업무 현황", "time": "1일차 14:48", "notes": "요청받는 쪽과 요청하는 쪽이 느끼는 빈도 차이. 실제 배포 전에 두 문항의 기준 표현을 맞추면 이 장면을 정식 비교로 쓸 수 있습니다."}, {"id": "perception", "title": "가장 큰 차이는 요청의 시간 여유입니다", "section": "주임단과 관리자가 서로를 보는 방식", "time": "1일차 14:50", "notes": "같은 질문을 양쪽에 물은 결과. 점 사이 거리가 멀수록 서로 다르게 느낀다는 뜻입니다. 위의 세 항목이 조별 토의 주제 후보입니다."}, {"id": "understand", "title": "양쪽 모두 이해하는 만큼 이해받지 못한다고 느낍니다", "section": "주임단과 관리자가 서로를 보는 방식", "time": "1일차 14:52", "notes": "주임단 6-2·6-3, 관리자 5-2·5-3 교차 비교. 주임단 쪽 차이가 더 크다는 점을 짚되, 어느 쪽이 맞다는 해석은 피하고 “왜 이렇게 느끼는지”를 조별로 이야기하게 합니다."}, {"id": "hard", "title": "주임단은 촉박함을, 관리자는 공유 부족을 꼽았습니다", "section": "주임단과 관리자가 서로를 보는 방식", "time": "1일차 14:54", "notes": "같은 어려움을 서로 반대편에서 보고 있는 장면. 주임단의 “촉박한 요청·서류 누락”과 관리자의 “처리 결과 공유 부족”은 같은 흐름의 앞뒤일 수 있습니다. 조별 토의에서 이 연결을 짚어 줍니다."}, {"id": "issues", "title": "업무 기준의 일관성과 업무량이 가장 낮게 나왔습니다", "section": "현장이 꼽은 문제와 서로에게 바라는 점", "time": "1일차 14:56", "notes": "왼쪽은 주임단이 느끼는 현재 업무 환경, 오른쪽은 주관식에서 반복된 주제. 실제 결과에서는 주제 분류 후 건수가 많은 4개만 보여 줍니다."}, {"id": "voices", "title": "바라는 점과 고마운 점을 함께 전합니다", "section": "현장이 꼽은 문제와 서로에게 바라는 점", "time": "1일차 14:58", "notes": "주임단 8·9번, 관리자 8·9번. 바라는 점만 보여 주면 불만 성토가 되기 쉬워 고마웠던 점을 같은 비중으로 함께 띄웁니다."}, {"id": "discuss", "title": "차이가 가장 컸던 세 가지를 함께 풀어 봅니다", "section": "조별 토의와 발표", "time": "1일차 15:00", "notes": "조별로 한 주제씩 맡거나, 모든 조가 세 주제 중 하나를 골라 토의합니다. 문제는 HR이 제기하고 해결책은 주임단이 스스로 찾는 방향. 개선방향 도출 후 조별 발표로 이어집니다."}, {"id": "define", "title": "먼저 문제를 정확히 정의합니다", "section": "조별 토의와 발표", "time": "1일차 15:00 ~ 15:30", "notes": "③은 진단, ④-1은 처방입니다. 여기서는 “무엇이 문제이고 왜 생기나”까지만 정리합니다. 토의가 해결책으로 넘어가면 진행자가 아이디어 주차장(전지 한쪽 칸)에 적게 하고 다시 원인으로 돌아옵니다. 문제 정의서는 ④-1의 출발점이 됩니다."}, {"id": "solve", "title": "정의한 문제에서 해결책을 찾습니다", "section": "조별 토의와 발표", "time": "1일차 15:40 ~ 16:20", "notes": "③의 문제 정의서와 아이디어 주차장 메모에서 시작합니다. 아이디어를 실행 주체 세 칸으로 나누면 “본사가 해 줘야 한다”로만 흐르지 않고, 주임단이 스스로 할 수 있는 것이 함께 보입니다. 마지막 5분은 전지 정리와 사진 올리기에 씁니다."}, {"id": "upload", "title": "조별 결과물 사진을 올려 주세요", "section": "조별 토의와 발표", "time": "1일차 16:15 ~ 16:20", "notes": "④-1 종료 5분 전에 띄웁니다. 진행 화면(screen.html)에서는 이 장에 1~10조 업로드 현황이 실시간으로 함께 표시되니, 아직 안 올린 조를 바로 챙길 수 있습니다. 사진은 전지를 정면에서, 가로로 찍게 안내합니다."}, {"id": "present", "title": "조당 3분, 세 가지만 말합니다", "section": "조별 토의와 발표", "time": "1일차 16:20", "notes": "이 장으로 발표 형식을 안내합니다. 진행 화면(screen.html)에서는 다음 장이 조별 사진 보드이며, 클리커(→)를 누를 때마다 1조부터 다음 조로 넘어가고 사진을 누르면 크게 보입니다. 10개 조면 30분이 꽉 차므로 질문은 받지 않고, 3분 타이머를 함께 띄우면 좋습니다. 발표 직후 사진은 이미 시트에 모여 있어 저녁 동안 결과 정리에 바로 씁니다."}, {"id": "board-photos", "title": "조별 사진 보드 (실시간)", "section": "조별 토의와 발표", "time": "1일차 16:20 ~ 16:50", "notes": "1조부터 차례로 결과물 사진을 띄웁니다. 클리커(→)를 누를 때마다 다음 조, 마지막 조 다음은 1일차 마무리 장입니다. 사진을 누르면 크게 보이고, 늦게 올라온 사진도 자동으로 나타납니다."}, {"id": "day1end", "title": "오늘 우리는", "section": "1일차 마무리", "time": "1일차 16:50 ~ 17:00", "notes": "16:50~17:00 클로징. 하루를 세 문장으로 정리하고 저녁 일정을 안내합니다. 조별 사진과 전지는 HR이 회수해 소통의 시간 동안 공통 문제 TOP 3와 해결 아이디어로 정리하고, 2일차 18·19번 장에 채워 넣습니다."}, {"id": "day2", "title": "어제 우리가 찾은 것", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:20", "notes": "2일차 ③ 디지털·AI 교육이 끝난 뒤 이어지는 마무리 세션입니다. 결과 공유 15분 → 한줄다짐 15분 → 만족도 조사 10분."}, {"id": "top3", "title": "여러 조에서 공통으로 나온 문제 TOP 3", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:20 ~ 11:27", "notes": "11:20~11:35 결과 공유. 1일차 저녁에 조별 사진·전지를 보고 같은 문제를 꼽은 조 수가 많은 순으로 세 가지를 고릅니다. 조별 발표를 다시 하지 않고, “여러분이 공통으로 짚은 문제는 이 세 가지였습니다”로 압축해 7분 안에 전달합니다."}, {"id": "ideas", "title": "주임단이 직접 찾은 해결 아이디어", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:27 ~ 11:35", "notes": "TOP 3마다 조별 개선안을 실행 주체 세 칸으로 나눠 대표 아이디어 하나씩 넣습니다. “내가 · 우리 사무실에서” 칸을 먼저 읽어 주면 바로 다음 순서인 한줄다짐으로 자연스럽게 이어집니다. 본사 요청 칸은 회신 시점을 약속할 수 있을 때만 하단 문구를 남깁니다."}, {"id": "pledge", "title": "월요일부터 실천할 한 가지를 적어 주세요", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:35 ~ 11:40", "notes": "11:35~11:50 중 앞 5분. 바로 앞 장의 “내가 · 우리 사무실에서” 아이디어를 떠올리며 적게 합니다. 진행 화면(screen.html)에서는 이 장에 모인 다짐 수가 실시간으로 올라가 참여를 끌어냅니다."}, {"id": "wall", "title": "서로의 다짐을 함께 읽어 봅니다", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:40", "notes": "이 장으로 방법을 안내합니다. 진행 화면(screen.html)에서는 다음 장이 다짐 보드이며, 5초마다 새 다짐이 더해지고 12개가 넘으면 페이지가 나뉩니다(클리커 → 다음 페이지, P 자동 넘김). 카드를 누르거나 Space를 누르면 한 장씩 크게 보입니다. 부적절한 카드는 카드 오른쪽 위 ×로 화면에서 숨길 수 있습니다."}, {"id": "board-wall", "title": "한줄다짐 보드 (실시간)", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:40 ~ 11:50", "notes": "모인 다짐이 12개씩 카드로 보입니다. 클리커(→) 다음 페이지, 카드 클릭 또는 Space로 한 장씩 크게, A 자동 넘김. 부적절한 카드는 × 로 화면에서만 숨깁니다(시트에서 완전히 내리려면 숨김 칸에 Y)."}, {"id": "survey", "title": "이틀간의 워크숍, 어떠셨나요?", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 11:50 ~ 11:58", "notes": "11:50~12:00. 자리에서 바로 응답하게 하고, 진행 화면에서 응답 수가 참석 인원에 가까워지면 마무리 장으로 넘어갑니다."}, {"id": "thanks", "title": "함께해 주셔서 감사합니다", "section": "2일차 워크숍 결과 공유, 한줄다짐, 만족도 조사", "time": "2일차 12:00", "notes": "마무리 인사. 중식·귀가 동선과 보상휴가 등 남은 안내가 있으면 이 장에서 함께 전합니다."}];
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const PRESENTER = PARAMS.get("view") === "presenter";
+if (PRESENTER) document.body.classList.add("presenter");
+const MODE_SIM = SIM || !LIVE;
+if (MODE_SIM) document.body.insertAdjacentHTML("beforeend", '<div class="badge" id="badge" title="S 리허설 패널">' + (SIM ? "리허설 모드 · S" : "ENDPOINT 미설정 · 리허설 모드 · S") + "</div>");
+const API_POST = p => MODE_SIM ? Sim.post(p) : api(p);
+const API_GET = q => MODE_SIM ? Sim.get(q) : apiGet(q);
+
+/* ---------- 화면 맞추기 ---------- */
+function fit() {
+  const st = $("#stage");
+  const W = PRESENTER ? innerWidth * 0.66 - 24 : innerWidth, H = PRESENTER ? innerHeight - 24 : innerHeight;
+  const s = Math.min(W / 1920, H / 1080);
+  st.style.transform = "scale(" + s + ")";
+  st.style.left = (PRESENTER ? 12 : (innerWidth - 1920 * s) / 2) + "px";
+  st.style.top = (PRESENTER ? 12 : (innerHeight - 1080 * s) / 2) + "px";
+}
+addEventListener("resize", fit); fit();
+
+/* ---------- 상태 ---------- */
+const slides = $$(".sl");
+const S = { i: 0, team: 1, page: 0 };
+let status = { photos: {}, pledges: 0, surveys: 0 };
+let pledges = [];
+const photoCache = {}, photoCount = {};
+let hidden = new Set(JSON.parse(store("rpws-hidden") || "[]"));
+const idOf = i => DECK[i].id;
+const curId = () => idOf(S.i);
+
+/* ---------- 슬라이드 전환 ---------- */
+const chan = "BroadcastChannel" in window ? new BroadcastChannel("rpws-screen") : null;
+function broadcast() { if (chan) chan.postMessage({ i: S.i, team: S.team, page: S.page }); }
+if (chan) chan.onmessage = e => { const d = e.data; if (!d || typeof d.i !== "number") return; S.team = d.team; S.page = d.page; show(d.i, true); };
+
+function show(i, quiet) {
+  i = Math.max(0, Math.min(DECK.length - 1, i));
+  const prevI = S.i;
+  S.i = i;
+  slides.forEach((el, k) => el.classList.toggle("on", k === i));
+  $("#pos").textContent = (i + 1) + " / " + DECK.length;
+  history.replaceState(null, "", location.pathname + location.search + "#s=" + (i + 1));
+  const id = curId();
+  if (id === "board-photos") renderTeam();
+  if (id === "board-wall") { refreshPledges(); }
+  if (id !== "board-wall") closeSpot();
+  renderNotes(); renderSide();
+  if (!quiet) broadcast();
+  if (MODE_SIM && !quiet && prevI !== i) simOnEnter(id);
+}
+function next() {
+  const id = curId();
+  if (id === "board-photos" && S.team < TEAMS) { S.team++; renderTeam(); broadcast(); renderSide(); return; }
+  if (id === "board-wall" && $("#spot").classList.contains("on")) { openSpot(spotIdx + 1); return; }
+  if (id === "board-wall" && S.page < pages() - 1) { S.page++; renderWall(); broadcast(); return; }
+  const nid = DECK[S.i + 1] && DECK[S.i + 1].id;
+  if (nid === "board-photos") S.team = 1;
+  if (nid === "board-wall") S.page = 0;
+  show(S.i + 1);
+}
+function prev() {
+  const id = curId();
+  if (id === "board-photos" && S.team > 1) { S.team--; renderTeam(); broadcast(); renderSide(); return; }
+  if (id === "board-wall" && $("#spot").classList.contains("on")) { closeSpot(); return; }
+  if (id === "board-wall" && S.page > 0) { S.page--; renderWall(); broadcast(); return; }
+  const pid = DECK[S.i - 1] && DECK[S.i - 1].id;
+  if (pid === "board-photos") S.team = TEAMS;
+  if (pid === "board-wall") S.page = Math.max(0, pages() - 1);
+  show(S.i - 1);
+}
+
+/* ---------- 메모 · 목록 · 발표자 창 ---------- */
+function renderNotes() {
+  const d = DECK[S.i], n = DECK[S.i + 1];
+  $("#notes").innerHTML = '<div class="t">' + esc((S.i + 1) + ". " + (d.time || "")) + "</div><div>" + esc(d.notes || "메모 없음") + '</div><div class="nx">다음 · ' + esc(n ? n.title : "끝") + "</div>";
+}
+function renderSide() {
+  if (!PRESENTER) return;
+  const d = DECK[S.i], n = DECK[S.i + 1];
+  $("#pTime").textContent = (S.i + 1) + " / " + DECK.length + (d.time ? " · 계획 " + d.time : "");
+  $("#pTitle").textContent = d.title + (d.id === "board-photos" ? " — " + S.team + "조" : "");
+  $("#pNotes").textContent = d.notes || "";
+  $("#pNext").textContent = d.id === "board-photos" && S.team < TEAMS ? (S.team + 1) + "조 사진" : (n ? n.title : "끝");
+}
+function buildGrid() {
+  let html = "", sec = null;
+  DECK.forEach((d, k) => {
+    if (d.section && d.section !== sec) { sec = d.section; html += "<h3>" + esc(sec) + "</h3>"; }
+    html += '<button data-k="' + k + '" class="' + (k === S.i ? "cur" : "") + '"><b>' + (k + 1) + (d.time ? " · " + esc(d.time) : "") + "</b>" + esc(d.title) + "</button>";
+  });
+  $("#grid").innerHTML = html;
+  $$("#grid button").forEach(b => b.onclick = () => { toggleGrid(false); show(+b.dataset.k); });
+}
+function toggleGrid(on) { if (on === undefined) on = !$("#gridWrap").classList.contains("on"); if (on) buildGrid(); $("#gridWrap").classList.toggle("on", on); }
+function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+function openPresenter() { const u = new URL(location.href); u.searchParams.set("view", "presenter"); window.open(u.href, "rpws-presenter", "width=1400,height=820"); }
+
+let t0 = Date.now();
+setInterval(() => {
+  if (!PRESENTER) return;
+  const now = new Date();
+  $("#clock").textContent = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+  const s = Math.floor((Date.now() - t0) / 1000);
+  $("#elapsed").textContent = "경과 " + String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+}, 1000);
+$("#resetTimer").onclick = () => { t0 = Date.now(); };
+$("#pPrev").onclick = prev; $("#pNextBtn").onclick = next;
+
+/* ---------- 실시간 데이터 ---------- */
+async function refreshStatus() {
+  try { const r = await API_GET({ type: "status" }); if (r && r.ok !== false) status = r; } catch (e) { return; }
+  const ph = status.photos || {};
+  $$(".teamchips").forEach(box => {
+    let h = "";
+    for (let t = 1; t <= TEAMS; t++) { const n = ph[t] || 0; h += '<div class="' + (n ? "ok" : "") + '">' + t + "조<small>" + (n ? n + "장 ✓" : "대기") + "</small></div>"; }
+    box.innerHTML = h;
+  });
+  $$('[data-k="pledge"] b').forEach(b => b.textContent = status.pledges || 0);
+  $$('[data-k="survey"] b').forEach(b => b.textContent = status.surveys || 0);
+  if ($("#sc1")) { $("#sc1").textContent = Object.values(ph).reduce((a, b) => a + b, 0); $("#sc2").textContent = status.pledges || 0; $("#sc3").textContent = status.surveys || 0; }
+  renderTabs();
+  if (curId() === "board-photos" && (ph[S.team] || 0) !== (photoCount[S.team] || 0)) renderTeam(true);
+}
+async function refreshPledges() {
+  try { const r = await API_GET({ type: "pledges" }); pledges = r.items || []; } catch (e) { return; }
+  renderWall();
+}
+
+/* ---------- 조별 사진 보드 ---------- */
+function renderTabs() {
+  const box = $("#galTabs"); if (!box) return;
+  box.innerHTML = "";
+  for (let t = 1; t <= TEAMS; t++) {
+    const b = document.createElement("button");
+    b.textContent = t;
+    b.className = (t === S.team ? "on " : "") + (((status.photos || {})[t] || 0) ? "has" : "");
+    b.onclick = () => { S.team = t; renderTeam(); broadcast(); renderSide(); };
+    box.appendChild(b);
+  }
+}
+async function renderTeam(force) {
+  const t = S.team;
+  renderTabs();
+  $("#galTitle").textContent = t + "조 발표";
+  $("#galPos").textContent = t + " / " + TEAMS + "조";
+  const box = $("#galPhotos");
+  const want = (status.photos || {})[t] || 0;
+  if (!photoCache[t] || force || photoCount[t] !== want) {
+    if (!photoCache[t]) box.innerHTML = '<div class="empty">사진을 불러오는 중…</div>';
+    try { const r = await API_GET({ type: "photos", team: t }); photoCache[t] = r.items || []; photoCount[t] = photoCache[t].length; }
+    catch (e) { if (S.team === t) box.innerHTML = '<div class="empty">사진을 불러오지 못했습니다<br>R을 눌러 다시 시도하세요</div>'; return; }
+  }
+  if (S.team !== t) return;
+  const items = photoCache[t];
+  if (!items.length) { box.innerHTML = '<div class="empty">' + t + "조 사진이 아직 없습니다<br>올라오면 자동으로 나타납니다</div>"; return; }
+  box.innerHTML = items.map((p, k) => '<div class="ph" data-k="' + k + '"><img src="' + p.data + '" alt="' + t + "조 결과물 " + (k + 1) + '"></div>').join("");
+  $$("#galPhotos .ph").forEach(el => el.onclick = () => { $("#zoomImg").src = items[+el.dataset.k].data; $("#zoom").classList.add("on"); });
+}
+$("#zoom").onclick = () => $("#zoom").classList.remove("on");
+
+/* ---------- 다짐 보드 ---------- */
+const PER = 12;
+let auto = false, autoTimer = null, spotIdx = -1;
+function visible() { return pledges.filter(p => !hidden.has(String(p.id))); }
+function pages() { return Math.max(1, Math.ceil(visible().length / PER)); }
+function who(p) { return [p.team ? p.team + "조" : "", p.name || ""].filter(Boolean).join(" · "); }
+function renderWall() {
+  const list = visible();
+  $("#wallCount").textContent = list.length;
+  if (S.page >= pages()) S.page = pages() - 1;
+  const box = $("#cards");
+  box.innerHTML = list.slice(S.page * PER, S.page * PER + PER).map(p =>
+    '<div class="pc" data-id="' + esc(p.id) + '"><button class="x" title="화면에서 숨기기">×</button><p>' + esc(p.text) + "</p><span>" + esc(who(p)) + "</span></div>").join("");
+  $$("#cards .pc").forEach(el => el.onclick = e => {
+    const id = el.dataset.id;
+    if (e.target.classList.contains("x")) { hidden.add(id); store("rpws-hidden", JSON.stringify([...hidden])); renderWall(); return; }
+    openSpot(visible().findIndex(p => String(p.id) === id));
+  });
+  $("#dots").innerHTML = pages() > 1 ? Array.from({ length: pages() }, (_, k) => '<i class="' + (k === S.page ? "on" : "") + '"></i>').join("") : "";
+  $("#wallPage").textContent = (pages() > 1 ? (S.page + 1) + " / " + pages() + " 페이지" : "") + (auto ? " · 자동 넘김" : "");
+}
+function openSpot(k) {
+  const list = visible(); if (!list.length) return;
+  spotIdx = (k + list.length) % list.length;
+  const p = list[spotIdx];
+  $("#spotText").textContent = p.text;
+  $("#spotWho").textContent = who(p);
+  $("#spot").classList.add("on");
+}
+function closeSpot() { $("#spot").classList.remove("on"); spotIdx = -1; }
+$("#spot").onclick = () => openSpot(spotIdx + 1);
+function toggleAuto() {
+  auto = !auto; clearInterval(autoTimer);
+  if (auto) autoTimer = setInterval(() => { S.page = (S.page + 1) % pages(); renderWall(); broadcast(); }, 10000);
+  renderWall();
+}
+
+/* ---------- 키보드 · 버튼 ---------- */
+let jumpBuf = "", jumpTimer = null;
+addEventListener("keydown", e => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  const k = e.key;
+  if (/^[0-9]$/.test(k)) { jumpBuf += k; $("#jump").textContent = jumpBuf; $("#jump").classList.add("on"); clearTimeout(jumpTimer); jumpTimer = setTimeout(() => { jumpBuf = ""; $("#jump").classList.remove("on"); }, 1800); return; }
+  if (k === "Enter" && jumpBuf) { show(parseInt(jumpBuf, 10) - 1); jumpBuf = ""; $("#jump").classList.remove("on"); return; }
+  if (k === "ArrowRight" || k === "PageDown" || k === "ArrowDown" || (k === " " && curId() !== "board-wall")) { e.preventDefault(); next(); }
+  else if (k === "ArrowLeft" || k === "PageUp" || k === "ArrowUp" || k === "Backspace") { e.preventDefault(); prev(); }
+  else if (k === " " && curId() === "board-wall") { e.preventDefault(); openSpot(spotIdx + 1); }
+  else if (k === "Home") show(0);
+  else if (k === "End") show(DECK.length - 1);
+  else if (k === "f" || k === "F") fullscreen();
+  else if (k === "g" || k === "G") toggleGrid();
+  else if (k === "n" || k === "N") $("#notes").classList.toggle("on");
+  else if (k === "b" || k === "B" || k === ".") $("#black").classList.toggle("on");
+  else if (k === "p" || k === "P") openPresenter();
+  else if ((k === "a" || k === "A") && curId() === "board-wall") toggleAuto();
+  else if ((k === "s" || k === "S") && MODE_SIM) $("#simp").classList.toggle("on");
+  else if (k === "r" || k === "R") { refreshStatus(); if (curId() === "board-photos") renderTeam(true); if (curId() === "board-wall") refreshPledges(); }
+  else if (k === "Escape") { $("#zoom").classList.remove("on"); closeSpot(); toggleGrid(false); $("#notes").classList.remove("on"); }
+});
+$("#bPrev").onclick = prev; $("#bNext").onclick = next;
+$("#bGrid").onclick = () => toggleGrid(); $("#bNotes").onclick = () => $("#notes").classList.toggle("on");
+$("#bPres").onclick = openPresenter; $("#bFs").onclick = fullscreen;
+$("#gridWrap").onclick = e => { if (e.target.id === "gridWrap") toggleGrid(false); };
+if ($("#badge")) $("#badge").onclick = () => $("#simp").classList.toggle("on");
+let hudTimer;
+function wake() { $("#hud").classList.remove("hide"); clearTimeout(hudTimer); hudTimer = setTimeout(() => $("#hud").classList.add("hide"), 2500); }
+addEventListener("mousemove", wake); wake();
+addEventListener("storage", e => { if (e.key && e.key.indexOf("rpws-sim") >= 0) { refreshStatus(); if (curId() === "board-wall") refreshPledges(); } });
+
+/* ============================================================
+   리허설: 가상 참가자
+   ============================================================ */
+const PLEDGE_BANK = [
+  "서류 요청은 받는 즉시 필요한 항목을 한 번에 안내하겠습니다", "처리한 결과는 그날 안에 관리자님께 먼저 알려 드리겠습니다",
+  "월요일 아침, 이번 주 마감 일정부터 확인하겠습니다", "헷갈리는 기준은 혼자 판단하지 않고 본사에 바로 묻겠습니다",
+  "RP님께 먼저 웃으며 인사하겠습니다", "반복되는 안내는 체크리스트로 만들어 공유하겠습니다",
+  "AI로 공지 초안을 써 보고 시간을 줄여 보겠습니다", "바쁜 날일수록 '언제까지 가능해요'를 먼저 말하겠습니다",
+  "다른 지점 주임단과 매달 한 번 노하우를 나누겠습니다", "범위 밖 요청은 정중하게, 기준을 설명하며 안내하겠습니다",
+  "오늘 만난 동료에게 월요일에 안부 문자를 보내겠습니다", "준법 체크 항목을 책상 앞에 붙여 두겠습니다",
+  "관리자님과 주 1회 10분, 업무 일정을 맞추겠습니다", "마감 전날에는 누락 서류를 미리 확인해 드리겠습니다",
+  "청약서 1차 심사 기준을 사무실에 다시 공유하겠습니다", "신규 RP 위촉 서류 안내문을 한 장으로 정리하겠습니다",
+  "민원 응대 후에는 꼭 결과를 기록으로 남기겠습니다", "하루 한 번, 받은 요청을 정리하고 우선순위를 정하겠습니다",
+  "모르는 것은 모른다고 말하고 함께 찾겠습니다", "보유계약 변경 요청은 당일 접수 여부를 바로 알려 드리겠습니다",
+  "점심시간 10분은 꼭 쉬면서 마음을 챙기겠습니다", "고마운 일은 그날 바로 고맙다고 말하겠습니다",
+  "생성형 AI로 자주 쓰는 안내 문구를 만들어 두겠습니다", "개인정보가 담긴 서류는 퇴근 전에 반드시 정리하겠습니다",
+  "관리자님께 요청할 때는 기한과 이유를 함께 말씀드리겠습니다", "이번 주 안에 우리 사무실 업무 기준표를 만들겠습니다",
+  "급한 요청이 몰리면 혼자 버티지 않고 바로 공유하겠습니다", "워크숍에서 정한 개선안을 월요일 조회 때 이야기하겠습니다",
+  "RP님들이 자주 묻는 질문을 모아 답변집을 만들겠습니다", "한 달에 한 번 나의 업무 시간을 돌아보겠습니다"
+];
+const NAMES = ["김주임", "이주임", "박주임", "최주임", "정주임", "강주임", "조주임", "윤주임", "장주임", "임주임", "한주임", "오주임", "서주임", "신주임"];
+const DUR = { real: { photos: 300, pledges: 300, surveys: 480 }, fast: { photos: 50, pledges: 60, surveys: 60 }, now: { photos: 3, pledges: 3, surveys: 3 } };
+const simRun = {};
+function slog(msg) {
+  const d = new Date(), t = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + ":" + String(d.getSeconds()).padStart(2, "0");
+  $("#simLog").insertAdjacentHTML("afterbegin", "<div>" + t + " · " + esc(msg) + "</div>");
+}
+function genPhoto(team, n) {
+  const c = document.createElement("canvas"); c.width = 1200; c.height = 760;
+  const g = c.getContext("2d");
+  g.fillStyle = "#f4efe3"; g.fillRect(0, 0, 1200, 760);
+  g.save(); g.translate(600, 380); g.rotate((Math.random() - .5) * 0.04); g.translate(-600, -380);
+  g.fillStyle = "#fffdf8"; g.fillRect(60, 40, 1080, 680);
+  g.fillStyle = "#FFA500"; g.fillRect(60, 40, 1080, 14);
+  g.fillStyle = "#1E1E1C"; g.font = "700 54px sans-serif"; g.fillText(team + "조 개선안" + (n > 1 ? " (" + n + ")" : ""), 110, 140);
+  const lines = [["문제", "마감 직전에 몰리는 서류 요청"], ["원인", "일정 공유가 늦고 기준이 지점마다 다름"], ["내가 · 우리 사무실", "월요일 아침 마감 일정 먼저 확인"], ["관리자·RP와 함께", "주 1회 10분 일정 맞추기"], ["본사에 요청", "지점 공통 업무 기준표"]];
+  lines.forEach((l, k) => {
+    g.fillStyle = "#9A5B00"; g.font = "700 30px sans-serif"; g.fillText(l[0], 110, 230 + k * 96);
+    g.fillStyle = "#333"; g.font = "38px sans-serif"; g.fillText(l[1], 110, 274 + k * 96);
+  });
+  g.restore();
+  return c.toDataURL("image/jpeg", 0.6);
+}
+function schedule(kind, count, make) {
+  if (simRun[kind]) { slog(kind + " 이미 진행 중"); return; }
+  const dur = DUR[$("#simSpeed").value][kind] * 1000;
+  const start = Date.now();
+  simRun[kind] = [];
+  let done = 0;
+  const label = { photos: "사진", pledges: "다짐", surveys: "만족도" }[kind];
+  slog(label + " " + count + "건 시작 · 약 " + Math.round(dur / 1000) + "초");
+  for (let k = 0; k < count; k++) {
+    const at = dur * Math.pow(Math.random(), kind === "surveys" ? 0.8 : 1.3);
+    simRun[kind].push(setTimeout(async () => {
+      try { await make(k); } catch (e) {}
+      done++;
+      refreshStatus();
+      if (curId() === "board-wall") refreshPledges();
+      if (done === count) { slog(label + " " + count + "건 완료 · " + Math.round((Date.now() - start) / 1000) + "초 걸림"); delete simRun[kind]; }
+    }, at));
+  }
+}
+function simPhotos() {
+  const order = Array.from({ length: TEAMS }, (_, k) => k + 1).sort(() => Math.random() - .5);
+  const jobs = [];
+  order.forEach(t => { jobs.push([t, 1]); if (Math.random() < .35) jobs.push([t, 2]); });
+  // 한 조는 늦게 올리는 상황을 만들어 둡니다
+  schedule("photos", jobs.length, k => API_POST({ kind: "photo", team: jobs[k][0], simData: genPhoto(jobs[k][0], jobs[k][1]), id: "sim-" + k }));
+}
+function simPledges() {
+  const n = 82;
+  schedule("pledges", n, k => API_POST({ kind: "pledge", id: "sim-p" + k + "-" + Date.now(), text: PLEDGE_BANK[k % PLEDGE_BANK.length], team: Math.random() < .85 ? 1 + (k % TEAMS) : "", name: Math.random() < .6 ? NAMES[k % NAMES.length] : "" }));
+}
+function simSurveys() {
+  const n = 74 + Math.floor(Math.random() * 6);
+  schedule("surveys", n, k => {
+    const r = () => String(Math.min(5, Math.max(2, Math.round(3.9 + (Math.random() - .45) * 2.4))));
+    return API_POST({ kind: "survey", id: "sim-s" + k + "-" + Date.now(), row: { "1. 전반 만족": r(), "2. 내용 적합성": r(), "3. 진행 방식": r(), "4. 실무 적용": r(), "5. 소통·교류": r() } });
+  });
+}
+function simReset() {
+  Object.values(simRun).forEach(list => list.forEach(clearTimeout));
+  Object.keys(simRun).forEach(k => delete simRun[k]);
+  Sim.reset(); hidden = new Set(); store("rpws-hidden", null);
+  Object.keys(photoCache).forEach(k => delete photoCache[k]);
+  Object.keys(photoCount).forEach(k => delete photoCount[k]);
+  pledges = []; slog("리허설 기록 초기화");
+  refreshStatus(); if (curId() === "board-wall") renderWall(); if (curId() === "board-photos") renderTeam(true);
+}
+function simOnEnter(id) {
+  if (!$("#simAuto").checked) return;
+  const st = status || {};
+  if (id === "upload" && !Object.keys(st.photos || {}).length) simPhotos();
+  if (id === "pledge" && !st.pledges) simPledges();
+  if (id === "survey" && !st.surveys) simSurveys();
+}
+$$("[data-sim]").forEach(b => b.onclick = () => ({ photos: simPhotos, pledges: simPledges, surveys: simSurveys, reset: simReset })[b.dataset.sim]());
+
+/* ---------- 시작 ---------- */
+const m = location.hash.match(/s=(\d+)/);
+refreshStatus();
+show(m ? parseInt(m[1], 10) - 1 : 0, true);
+setInterval(() => { refreshStatus(); if (curId() === "board-wall") refreshPledges(); }, MODE_SIM ? 1500 : 5000);
+if (MODE_SIM) slog(SIM ? "리허설 모드 시작" : "ENDPOINT가 비어 있어 리허설 모드로 열었습니다");
+</script>
+</body>
+</html>

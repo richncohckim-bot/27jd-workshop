@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조별 결과 사진 올리기 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="logo.svg" alt="GoodRich"><span>전략HR팀</span></div>
+
+  <div class="hero">
+    <div class="eyebrow">1일차 · ④-1 개선방향 도출</div>
+    <h1>조별 결과물 사진을 올려 주세요</h1>
+    <p>올린 사진은 조별 발표 때 앞 화면에 그대로 띄웁니다.</p>
+    <span class="chip">조장 1명만 올리면 됩니다</span>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div id="form">
+    <div class="card">
+      <h2>1. 우리 조를 고르세요<span class="req">필수</span></h2>
+      <p class="hint">숫자 아래는 지금까지 올라온 사진 수입니다.</p>
+      <div class="teams" id="teams"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. 사진 찍기<span class="req">필수</span></h2>
+      <p class="hint">전지를 정면에서, 글씨가 읽히도록 가까이 찍어 주세요. 한 조에 최대 <span id="max"></span>장까지 올릴 수 있습니다.</p>
+      <label class="drop" id="drop" for="file">
+        <span class="cam" aria-hidden="true">📷</span>
+        <b>눌러서 촬영하거나 사진 고르기</b>
+        <span>가로로 찍으면 화면에 더 크게 보입니다</span>
+      </label>
+      <input type="file" id="file" accept="image/*" capture="environment" hidden>
+      <img class="preview" id="preview" alt="올릴 사진 미리보기" hidden>
+      <div class="have" id="have" hidden></div>
+      <label class="check" id="replaceWrap" hidden><input type="checkbox" id="replace"><span>이미 올린 우리 조 사진을 지우고 이 사진으로 바꾸기</span></label>
+    </div>
+
+    <button class="btn orange" id="send" disabled>사진 올리기</button>
+    <div class="status" id="status" role="status"></div>
+  </div>
+
+  <div class="card done" id="done" hidden>
+    <div class="mark">✓</div>
+    <h2 id="doneTitle">올라갔습니다</h2>
+    <p>조별 발표 때 앞 화면에서 함께 봅니다.</p>
+    <button class="btn ghost" id="more">한 장 더 올리기</button>
+  </div>
+
+  <div class="foot">2027 RP 주임단 워크숍 · 전략HR팀</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let team = null, dataUrl = null, counts = {};
+$("#max").textContent = MAX_PHOTOS;
+setupNotice();
+
+function renderTeams() {
+  const box = $("#teams");
+  box.innerHTML = "";
+  for (let i = 1; i <= TEAMS; i++) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = team === i ? "on" : "";
+    b.innerHTML = i + "조<small>" + (counts[i] || 0) + "장</small>";
+    b.addEventListener("click", () => { team = i; store("rpws-team", i); renderTeams(); updateState(); });
+    box.appendChild(b);
+  }
+}
+
+function updateState() {
+  const n = team ? (counts[team] || 0) : 0;
+  $("#have").hidden = !team || n === 0;
+  $("#have").textContent = team ? team + "조는 이미 " + n + "장을 올렸습니다." : "";
+  $("#replaceWrap").hidden = !team || n === 0;
+  const full = team && n >= MAX_PHOTOS && !$("#replace").checked;
+  $("#send").disabled = !team || !dataUrl || full;
+  $("#status").className = "status";
+  $("#status").textContent = full ? "최대 " + MAX_PHOTOS + "장까지 올렸습니다. 바꾸려면 위 체크박스를 선택하세요." : "";
+}
+
+async function loadCounts() {
+  if (!LIVE && !SIM) return;
+  try {
+    const r = await apiGet({ type: "status" });
+    counts = r.photos || {};
+    renderTeams(); updateState();
+  } catch (e) {}
+}
+
+function resize(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1800;
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.round(img.width * s), h = Math.round(img.height * s);
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("이미지를 읽을 수 없습니다")); };
+    img.src = url;
+  });
+}
+
+$("#file").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  $("#status").textContent = "사진을 준비하는 중…";
+  try {
+    dataUrl = await resize(f);
+    $("#preview").src = dataUrl;
+    $("#preview").hidden = false;
+    $("#drop").querySelector("b").textContent = "다른 사진으로 바꾸기";
+  } catch (err) {
+    dataUrl = null;
+    $("#status").className = "status err";
+    $("#status").textContent = "사진을 읽지 못했습니다. 다시 찍어 주세요.";
+    return;
+  }
+  updateState();
+});
+
+$("#replace").addEventListener("change", updateState);
+
+$("#send").addEventListener("click", async () => {
+  if (!team || !dataUrl) return;
+  const btn = $("#send");
+  btn.disabled = true;
+  $("#status").className = "status";
+  $("#status").textContent = "올리는 중입니다. 잠시만 기다려 주세요…";
+  try {
+    if (!LIVE && !SIM) throw new Error("ENDPOINT 미설정");
+    const r = await api({ kind: "photo", team, data: dataUrl, replace: $("#replace").checked, id: deviceId() });
+    if (!r.ok) throw new Error(r.error || "저장 실패");
+    counts[team] = r.count;
+    $("#doneTitle").textContent = team + "조 사진이 올라갔습니다";
+    $("#form").hidden = true;
+    $("#done").hidden = false;
+  } catch (err) {
+    $("#status").className = "status err";
+    $("#status").textContent = "올리지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.";
+    btn.disabled = false;
+  }
+});
+
+$("#more").addEventListener("click", () => {
+  dataUrl = null;
+  $("#file").value = "";
+  $("#preview").hidden = true;
+  $("#replace").checked = false;
+  $("#drop").querySelector("b").textContent = "눌러서 촬영하거나 사진 고르기";
+  $("#done").hidden = true;
+  $("#form").hidden = false;
+  renderTeams(); updateState();
+});
+
+const saved = parseInt(store("rpws-team"), 10);
+if (saved >= 1 && saved <= TEAMS) team = saved;
+renderTeams(); updateState(); loadCounts();
+</script>
+</body>
+</html>

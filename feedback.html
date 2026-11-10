@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>만족도 조사 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="logo.svg" alt="GoodRich"><span>전략HR팀</span></div>
+
+  <div class="hero">
+    <div class="eyebrow">2027 RP 주임단 워크숍</div>
+    <h1>만족도 조사</h1>
+    <p>응답은 익명으로 처리되며, 다음 워크숍을 준비하는 데에만 활용합니다.</p>
+    <span class="chip">약 3분 소요</span>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div id="formWrap">
+    <div class="prog"><div class="bar"><i id="bar"></i></div><div class="txt" id="ptxt"></div></div>
+    <form id="form" novalidate></form>
+    <button class="btn orange" id="send" type="button">제출하기</button>
+    <div class="status" id="status" role="status"></div>
+  </div>
+
+  <div class="card done" id="done" hidden>
+    <div class="mark">✓</div>
+    <h2>소중한 의견 감사합니다</h2>
+    <p>이틀 동안 함께해 주셔서 고맙습니다.<br>조심히 돌아가세요.</p>
+  </div>
+
+  <div class="foot">2027 RP 주임단 워크숍 · 전략HR팀</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+setupNotice();
+
+const AGREE = ["전혀 아니다", "아니다", "보통", "그렇다", "매우 그렇다"];
+const SATIS = ["매우 불만족", "불만족", "보통", "만족", "매우 만족"];
+const PROGRAMS = [
+  "보험시장의 변화와 주임단의 역할",
+  "준법: 규제·컴플라이언스",
+  "업무개선 워크숍(조별 토의·발표)",
+  "소통의 시간(본사 임직원과 석식)",
+  "마음챙김",
+  "우수 주임단 사례 공유",
+  "디지털·AI 활용"
+];
+
+/* 문항 정의 — 문구를 바꾸려면 이곳만 고치면 됩니다 */
+const SECTIONS = [
+  { title: "워크숍 전반", items: [
+    { id: "a1", key: "1. 전반 만족", type: "scale", labels: AGREE, label: "1. 이번 워크숍에 전반적으로 만족한다", req: true },
+    { id: "a2", key: "2. 내용 적합성", type: "scale", labels: AGREE, label: "2. 워크숍 내용이 내 업무에 적합했다", req: true },
+    { id: "a3", key: "3. 진행 방식", type: "scale", labels: AGREE, label: "3. 진행 방식이 이해와 참여에 도움이 되었다", req: true },
+    { id: "a4", key: "4. 실무 적용", type: "scale", labels: AGREE, label: "4. 배운 내용을 현장 업무에 적용할 수 있다", req: true },
+    { id: "a5", key: "5. 소통·교류", type: "scale", labels: AGREE, label: "5. 다른 주임단·본사 임직원과 충분히 소통하고 교류했다", req: true }
+  ]},
+  { title: "프로그램별 만족도", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items:
+    PROGRAMS.map((p, i) => ({ id: "b" + (i + 1), key: "6-" + (i + 1) + ". " + p, type: "scale", labels: SATIS, label: p, req: true })).concat([
+    { id: "b8", key: "7. 가장 도움된 프로그램", type: "radio", label: "7. 가장 도움이 된 프로그램 하나를 골라 주세요", options: PROGRAMS, req: true }
+  ])},
+  { title: "운영", hint: "8. 운영은 얼마나 만족스러웠나요?", items: [
+    { id: "c1", key: "8-1. 교육장", type: "scale", labels: SATIS, label: "교육장", req: true },
+    { id: "c2", key: "8-2. 숙소", type: "scale", labels: SATIS, label: "숙소", req: true, na: "숙박 안 함" },
+    { id: "c3", key: "8-3. 식사", type: "scale", labels: SATIS, label: "식사", req: true },
+    { id: "c4", key: "8-4. 일정·시간 배분", type: "scale", labels: SATIS, label: "일정과 시간 배분", req: true }
+  ]},
+  { title: "의견", items: [
+    { id: "d1", key: "9. 좋았던 점", type: "text", label: "9. 가장 좋았던 점은 무엇인가요?" },
+    { id: "d2", key: "10. 아쉬운 점", type: "text", label: "10. 아쉬웠던 점이나 다음에 바꾸면 좋을 점이 있다면 적어 주세요" },
+    { id: "d3", key: "11. 다음 주제", type: "text", label: "11. 다음 워크숍에서 다뤘으면 하는 주제가 있나요?" }
+  ]}
+];
+const ITEMS = SECTIONS.flatMap(s => s.items);
+
+function build() {
+  const f = $("#form");
+  let html = "";
+  SECTIONS.forEach(sec => {
+    html += '<div class="sec">' + esc(sec.title) + '</div><div class="card">';
+    if (sec.hint) html += '<p class="hint" style="font-weight:600;color:var(--ink)">' + esc(sec.hint) + "</p>";
+    sec.items.forEach(it => {
+      html += '<div class="row" id="row-' + it.id + '"><div class="q">' + esc(it.label) + (it.req ? '<span class="req">필수</span>' : "") + "</div>";
+      if (it.type === "scale") {
+        html += '<div class="scale">';
+        it.labels.forEach((l, i) => {
+          html += '<label><input type="radio" name="' + it.id + '" value="' + (i + 1) + '"><span>' + (i + 1) + "<small>" + esc(l) + "</small></span></label>";
+        });
+        html += "</div>";
+        if (it.na) html += '<label class="check"><input type="checkbox" name="' + it.id + '_na"><span>' + esc(it.na) + "</span></label>";
+      } else if (it.type === "radio") {
+        html += '<div class="opts">' + it.options.map(o => '<label><input type="radio" name="' + it.id + '" value="' + esc(o) + '"><span>' + esc(o) + "</span></label>").join("") + "</div>";
+      } else {
+        html += '<textarea name="' + it.id + '" maxlength="500" placeholder="자유롭게 적어 주세요"></textarea>';
+      }
+      html += "</div>";
+    });
+    html += "</div>";
+  });
+  f.innerHTML = html;
+  f.addEventListener("change", e => {
+    const na = e.target.name && e.target.name.endsWith("_na");
+    if (na) {
+      const id = e.target.name.slice(0, -3);
+      f.querySelectorAll('input[name="' + id + '"]').forEach(r => { r.disabled = e.target.checked; if (e.target.checked) r.checked = false; });
+    }
+    const row = e.target.closest(".row");
+    if (row) row.classList.remove("invalid");
+    progress(); saveDraft();
+  });
+  f.addEventListener("input", saveDraft);
+}
+
+function value(it) {
+  const f = $("#form");
+  if (it.type === "text") return f.elements[it.id].value.trim();
+  const na = it.na && f.elements[it.id + "_na"].checked;
+  if (na) return it.na;
+  const c = f.querySelector('input[name="' + it.id + '"]:checked');
+  return c ? c.value : "";
+}
+
+function progress() {
+  const req = ITEMS.filter(i => i.req);
+  const done = req.filter(i => value(i) !== "").length;
+  $("#bar").style.width = Math.round(done / req.length * 100) + "%";
+  $("#ptxt").textContent = "필수 " + done + " / " + req.length;
+}
+
+function saveDraft() {
+  const d = {};
+  ITEMS.forEach(it => { d[it.id] = value(it); });
+  store("rpws-fb-draft", JSON.stringify(d));
+}
+
+function loadDraft() {
+  try {
+    const d = JSON.parse(store("rpws-fb-draft") || "null");
+    if (!d) return;
+    const f = $("#form");
+    ITEMS.forEach(it => {
+      const v = d[it.id];
+      if (!v) return;
+      if (it.type === "text") f.elements[it.id].value = v;
+      else if (it.na && v === it.na) { f.elements[it.id + "_na"].checked = true; f.querySelectorAll('input[name="' + it.id + '"]').forEach(r => r.disabled = true); }
+      else { const r = f.querySelector('input[name="' + it.id + '"][value="' + CSS.escape(v) + '"]'); if (r) r.checked = true; }
+    });
+  } catch (e) {}
+}
+
+$("#send").addEventListener("click", async () => {
+  const missing = ITEMS.filter(i => i.req && value(i) === "");
+  if (missing.length) {
+    missing.forEach(i => $("#row-" + i.id).classList.add("invalid"));
+    $("#row-" + missing[0].id).scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#status").className = "status err";
+    $("#status").textContent = "표시된 " + missing.length + "개 문항에 답해 주세요.";
+    return;
+  }
+  const row = {};
+  ITEMS.forEach(it => { row[it.key] = value(it); });
+  const btn = $("#send");
+  btn.disabled = true;
+  $("#status").className = "status";
+  $("#status").textContent = "제출하는 중…";
+  try {
+    if (!LIVE && !SIM) throw new Error("ENDPOINT 미설정");
+    const r = await api({ kind: "survey", id: deviceId(), row });
+    if (!r.ok) throw new Error(r.error || "저장 실패");
+    store("rpws-fb-done", "1");
+    store("rpws-fb-draft", null);
+    $("#formWrap").hidden = true;
+    $("#done").hidden = false;
+    window.scrollTo(0, 0);
+  } catch (err) {
+    $("#status").className = "status err";
+    $("#status").textContent = "제출하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.";
+    btn.disabled = false;
+  }
+});
+
+build(); loadDraft(); progress();
+if (store("rpws-fb-done") === "1") { $("#formWrap").hidden = true; $("#done").hidden = false; }
+</script>
+</body>
+</html>

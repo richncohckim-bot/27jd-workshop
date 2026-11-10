@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연결 점검 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+<script src="qr.js"></script>
+<style>
+.wrap{max-width:820px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:15px}
+.kv b{color:var(--muted);font-weight:600}
+.kv span{word-break:break-all}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;font-size:15px}
+.steps li i{font-style:normal;width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;background:var(--line);color:var(--muted)}
+.steps li.ok i{background:var(--ok-soft);color:var(--ok)}
+.steps li.err i{background:var(--err-soft);color:var(--err)}
+.steps li.run i{background:var(--orange-soft);color:var(--orange-ink)}
+.steps li small{display:block;color:var(--muted);margin-top:2px}
+.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qrs a{display:block;text-align:center;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.qrs svg{width:100%;height:auto;display:block;margin-bottom:8px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;text-decoration:none}
+.sum{font-size:18px;font-weight:700;margin-top:12px}
+@media (max-width:560px){.qrs{grid-template-columns:1fr 1fr}.kv{grid-template-columns:110px 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="logo.svg" alt="GoodRich"><span>전략HR팀 · 운영자용</span></div>
+  <div class="hero">
+    <div class="eyebrow">행사 전 점검</div>
+    <h1>연결 점검</h1>
+    <p>구글 시트 저장소와 페이지가 제대로 연결됐는지 한 번에 확인합니다. 테스트로 넣은 기록은 마지막 단계에서 자동으로 지웁니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>설정</h2>
+    <div class="kv" id="cfg"></div>
+  </div>
+
+  <div class="card">
+    <h2>자동 점검</h2>
+    <p class="hint">조회 → 다짐 · 사진 · 만족도 저장 → 다시 조회 → 테스트 기록 삭제 순서로 진행합니다. 1조 사진이 이미 3장이면 사진 단계는 실패로 나옵니다.</p>
+    <ul class="steps" id="steps"></ul>
+    <div class="sum" id="sum"></div>
+    <button class="btn orange" id="run">점검 시작</button>
+  </div>
+
+  <div class="card">
+    <h2>휴대폰으로 직접 확인</h2>
+    <p class="hint">QR을 휴대폰으로 찍어 실제로 한 번씩 제출해 보세요. 직접 넣은 기록은 시트에서 지워 주셔야 합니다.</p>
+    <div class="qrs" id="qrs"></div>
+  </div>
+
+  <div class="card">
+    <h2>바로 가기</h2>
+    <div class="links" id="links"></div>
+  </div>
+  <div class="foot">2027 RP 주임단 워크숍 · 전략HR팀</div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const cfg = [
+  ["모드", SIM ? "리허설 모드 (?sim=1) — 실제 저장소 대신 이 브라우저에서 점검" : LIVE ? "실제 연결" : "ENDPOINT 미설정"],
+  ["ENDPOINT", LIVE ? ENDPOINT : "<b style='color:var(--err)'>설정되지 않음</b> — config.js에 웹 앱 URL을 넣어 주세요"],
+  ["조 개수", TEAMS + "조 (Code_현장.gs의 TEAMS와 같아야 합니다)"],
+  ["조당 사진", MAX_PHOTOS + "장"],
+  ["페이지 주소", pageUrl("./").replace(/\?.*$/, "")]
+];
+$("#cfg").innerHTML = cfg.map(([k, v]) => "<b>" + k + "</b><span>" + v + "</span>").join("");
+
+const STEPS = [
+  ["연결", "Apps Script 응답 확인"],
+  ["현황 조회", "사진 · 다짐 · 만족도 수 읽기"],
+  ["다짐 저장", "테스트 다짐 1건 보내기"],
+  ["다짐 조회", "보드에 테스트 다짐이 보이는지"],
+  ["사진 저장", "1조로 테스트 사진 1장 보내기 (드라이브 폴더)"],
+  ["사진 조회", "조별 발표 보드가 사진을 읽는지"],
+  ["만족도 저장", "테스트 응답 1건 보내기"],
+  ["정리", "TEST- 기록 지우고 원래 수로 돌아왔는지"]
+];
+$("#steps").innerHTML = STEPS.map((s, k) => '<li id="st' + k + '"><i>' + (k + 1) + "</i><div><b>" + s[0] + "</b><small>" + s[1] + "</small></div></li>").join("");
+function mark(k, state, note) {
+  const li = $("#st" + k);
+  li.className = state;
+  li.querySelector("i").textContent = state === "ok" ? "✓" : state === "err" ? "✗" : "…";
+  if (note) li.querySelector("small").textContent = note;
+}
+function testImage() {
+  const c = document.createElement("canvas"); c.width = 800; c.height = 500;
+  const g = c.getContext("2d");
+  g.fillStyle = "#FFF1D6"; g.fillRect(0, 0, 800, 500);
+  g.fillStyle = "#1E1E1C"; g.font = "bold 44px sans-serif"; g.fillText("연결 점검용 테스트 사진", 60, 120);
+  g.font = "28px sans-serif"; g.fillText(new Date().toLocaleString("ko-KR"), 60, 180);
+  return c.toDataURL("image/jpeg", 0.8);
+}
+async function timed(fn) { const t = performance.now(); const r = await fn(); return [r, Math.round(performance.now() - t)]; }
+
+$("#run").onclick = async () => {
+  if (!LIVE && !SIM) { $("#sum").textContent = "ENDPOINT를 먼저 설정하세요. 리허설로 보려면 주소 끝에 ?sim=1"; return; }
+  $("#run").disabled = true; $("#sum").textContent = "";
+  STEPS.forEach((s, k) => mark(k, "", s[1]));
+  const id = "TEST-" + Date.now().toString(36);
+  let ok = 0, base;
+  const step = async (k, fn) => {
+    mark(k, "run");
+    try { const note = await fn(); mark(k, "ok", note); ok++; return true; }
+    catch (e) { mark(k, "err", String(e.message || e)); return false; }
+  };
+  await step(0, async () => { const [r, ms] = await timed(() => apiGet({ type: "ping" })); if (!r.ok) throw new Error("응답 이상"); return "응답 " + ms + "ms"; });
+  await step(1, async () => { const [r, ms] = await timed(() => apiGet({ type: "status" })); base = r; const ph = Object.values(r.photos || {}).reduce((a, b) => a + b, 0); return "사진 " + ph + " · 다짐 " + r.pledges + " · 만족도 " + r.surveys + " (" + ms + "ms)"; });
+  await step(2, async () => { const [r, ms] = await timed(() => api({ kind: "pledge", id, text: "연결 점검 테스트 다짐", team: "", name: "점검" })); if (!r.ok) throw new Error(r.error || "저장 실패"); return "저장 " + ms + "ms"; });
+  await step(3, async () => { const r = await apiGet({ type: "pledges" }); if (!(r.items || []).some(p => p.text === "연결 점검 테스트 다짐")) throw new Error("다짐이 목록에 없습니다"); return "목록 " + r.items.length + "건 중 확인"; });
+  await step(4, async () => { const [r, ms] = await timed(() => api({ kind: "photo", team: 1, data: testImage(), id })); if (!r.ok) throw new Error(r.error === "full" ? "1조 사진이 이미 가득 찼습니다" : (r.error || "저장 실패")); return "저장 " + ms + "ms"; });
+  await step(5, async () => { const [r, ms] = await timed(() => apiGet({ type: "photos", team: 1 })); if (!(r.items || []).length) throw new Error("사진을 읽지 못했습니다"); return "1조 " + r.items.length + "장 · " + ms + "ms"; });
+  await step(6, async () => { const r = await api({ kind: "survey", id, row: { "1. 전반 만족": "5", "메모": "연결 점검 테스트" } }); if (!r.ok) throw new Error(r.error || "저장 실패"); return "저장 완료"; });
+  await step(7, async () => {
+    if (SIM) { return "리허설 모드에서는 진행 화면의 초기화로 정리합니다"; }
+    const r = await api({ kind: "cleanup" });
+    if (!r.ok) throw new Error(r.error || "정리 실패");
+    const s = await apiGet({ type: "status" });
+    const same = base && s.pledges === base.pledges && s.surveys === base.surveys;
+    if (!same) throw new Error("정리 후 수가 처음과 다릅니다. 시트를 확인하세요");
+    return "다짐 " + r.pledges + " · 사진 " + r.photos + " · 만족도 " + r.surveys + "건 삭제";
+  });
+  $("#sum").textContent = ok === STEPS.length ? "모두 통과했습니다. 행사 당일 그대로 쓰시면 됩니다." : (STEPS.length - ok) + "개 단계가 실패했습니다. 표시된 내용을 확인하세요.";
+  $("#run").disabled = false;
+};
+
+const pages = [["사진 올리기", "photo.html"], ["한줄다짐", "pledge.html"], ["만족도 조사", "feedback.html"]];
+$("#qrs").innerHTML = pages.map(([n, f]) => '<a href="' + pageUrl(f) + '" target="_blank">' + QR.svg(pageUrl(f), { label: n + " QR", quiet: 2 }) + n + "</a>").join("");
+$("#links").innerHTML = [
+  ["진행 화면", "screen.html"], ["진행 화면 · 리허설", "screen.html?sim=1"], ["발표자 창", "screen.html?view=presenter"],
+  ["사전 설문(주임단)", "https://richncohckim-bot.github.io/rp-survey/index.html"], ["사전 설문(관리자·RP)", "https://richncohckim-bot.github.io/rp-survey/manager.html"]
+].map(([n, f]) => '<a href="' + new URL(f, location.protocol.startsWith("http") ? location.href : SITE).href + '" target="_blank">' + n + "</a>").join("");
+</script>
+</body>
+</html>

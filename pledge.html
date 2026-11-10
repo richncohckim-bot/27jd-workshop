@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>월요일부터 실천할 한줄다짐 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="logo.svg" alt="GoodRich"><span>전략HR팀</span></div>
+
+  <div class="hero">
+    <div class="eyebrow">2일차 · 한줄다짐</div>
+    <h1>월요일부터 실천할<br>한 가지를 적어 주세요</h1>
+    <p>적은 다짐은 앞 화면에 모여 함께 읽습니다.</p>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div id="form">
+    <div class="card">
+      <h2>나의 한줄다짐<span class="req">필수</span></h2>
+      <p class="hint">거창하지 않아도 됩니다. 월요일에 바로 할 수 있는 행동 하나면 충분합니다.</p>
+      <textarea id="text" maxlength="60" placeholder="예) 월요일 아침, 관리자님께 이번 주 마감 일정부터 여쭙겠습니다"></textarea>
+      <div class="count"><span id="len">0</span> / 60</div>
+      <div class="ex">
+        <div>서류 요청은 받는 즉시 필요한 항목을 한 번에 안내하겠습니다</div>
+        <div>처리한 결과는 그날 안에 관리자님께 먼저 알려 드리겠습니다</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>보여 줄 이름<span class="req" style="color:var(--faint)">선택</span></h2>
+      <p class="hint">비워 두면 다짐만 화면에 나옵니다.</p>
+      <div class="two">
+        <div class="field">
+          <label for="team">조</label>
+          <select id="team"><option value="">선택 안 함</option></select>
+        </div>
+        <div class="field">
+          <label for="name">이름</label>
+          <input type="text" id="name" maxlength="10" placeholder="예) 김주임">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn orange" id="send" disabled>다짐 올리기</button>
+    <div class="status" id="status" role="status"></div>
+  </div>
+
+  <div class="card done" id="done" hidden>
+    <div class="mark">✓</div>
+    <h2>다짐이 올라갔습니다</h2>
+    <p id="mine"></p>
+    <button class="btn ghost" id="edit">고쳐 쓰기</button>
+  </div>
+
+  <div class="foot">2027 RP 주임단 워크숍 · 전략HR팀</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+setupNotice();
+for (let i = 1; i <= TEAMS; i++) $("#team").insertAdjacentHTML("beforeend", '<option value="' + i + '">' + i + "조</option>");
+
+function check() {
+  const t = $("#text").value.trim();
+  $("#len").textContent = $("#text").value.length;
+  $("#send").disabled = t.length < 2;
+}
+$("#text").addEventListener("input", () => { check(); store("rpws-pledge-draft", $("#text").value); });
+
+$("#send").addEventListener("click", async () => {
+  const text = $("#text").value.trim();
+  if (text.length < 2) return;
+  const btn = $("#send");
+  btn.disabled = true;
+  $("#status").className = "status";
+  $("#status").textContent = "올리는 중…";
+  try {
+    if (!LIVE && !SIM) throw new Error("ENDPOINT 미설정");
+    const r = await api({ kind: "pledge", id: deviceId(), text, team: $("#team").value, name: $("#name").value.trim() });
+    if (!r.ok) throw new Error(r.error || "저장 실패");
+    store("rpws-pledge", JSON.stringify({ text, team: $("#team").value, name: $("#name").value.trim() }));
+    $("#mine").textContent = "“" + text + "”";
+    $("#form").hidden = true;
+    $("#done").hidden = false;
+    $("#status").textContent = "";
+  } catch (err) {
+    $("#status").className = "status err";
+    $("#status").textContent = "올리지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.";
+    btn.disabled = false;
+  }
+});
+
+$("#edit").addEventListener("click", () => {
+  $("#done").hidden = true;
+  $("#form").hidden = false;
+  $("#status").className = "status";
+  $("#status").textContent = "고쳐서 다시 올리면 이전 다짐을 대신합니다.";
+  check();
+});
+
+try {
+  const p = JSON.parse(store("rpws-pledge") || "null");
+  if (p) {
+    $("#text").value = p.text; $("#team").value = p.team || ""; $("#name").value = p.name || "";
+    $("#mine").textContent = "“" + p.text + "”";
+    $("#form").hidden = true; $("#done").hidden = false;
+  } else {
+    const d = store("rpws-pledge-draft");
+    if (d) $("#text").value = d;
+    const t = store("rpws-team");
+    if (t) $("#team").value = t;
+  }
+} catch (e) {}
+check();
+</script>
+</body>
+</html>
