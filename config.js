@@ -85,9 +85,9 @@ function setupNotice() {
 const Sim = {
   KEY: "rpws-sim-v1",
   mem: null,
-  empty() { return { photos: [], pledges: [], surveys: [] }; },
+  empty() { return { photos: [], pledges: [], surveys: [], cases: [] }; },
   load() {
-    try { const d = JSON.parse(localStorage.getItem(this.KEY) || "null"); if (d) return d; } catch (e) {}
+    try { const d = JSON.parse(localStorage.getItem(this.KEY) || "null"); if (d) { d.cases = d.cases || []; return d; } } catch (e) {}
     return this.mem || this.empty();
   },
   save(d) {
@@ -145,6 +145,13 @@ const Sim = {
       this.save(d);
       return { ok: true };
     }
+    if (p.kind === "case") {
+      // 우수 사례 제출: 리허설에서는 첨부 파일 내용 없이 이름만 남깁니다.
+      if (!String(p.branch || "").trim() || !String(p.name || "").trim()) return { ok: false, error: "missing" };
+      d.cases.push({ id: p.id, branch: p.branch, name: p.name, title: p.title || "", files: (p.files || []).map(f => f.name), time: Date.now() });
+      this.save(d);
+      return { ok: true };
+    }
     if (p.kind === "cleanup") { this.reset(); return { ok: true }; }
     return { ok: false, error: "unknown kind" };
   },
@@ -155,7 +162,7 @@ const Sim = {
     if (q.type === "status") {
       const photos = {};
       d.photos.filter(p => !p.state).forEach(p => { photos[p.team] = (photos[p.team] || 0) + 1; });
-      return { ok: true, photos, pledges: d.pledges.length, surveys: d.surveys.length };
+      return { ok: true, photos, pledges: d.pledges.length, surveys: d.surveys.length, cases: (d.cases || []).length };
     }
     if (q.type === "pledges") return { ok: true, items: d.pledges.map((p, i) => ({ id: "s" + i + "-" + p.time, team: p.team, name: p.name, text: p.text })) };
     if (q.type === "photos") {
