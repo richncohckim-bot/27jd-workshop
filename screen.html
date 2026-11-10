@@ -67,8 +67,9 @@ body{font-family:'IBM Plex Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun 
 .board.dk .wcount{color:var(--soft)}.board.dk .wcount b{color:var(--orange)}
 .board.dk .bfoot{color:#8f8b83}
 .themes{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;min-height:0;margin-top:10px}
-.th{background:#2a2a27;border-radius:22px;padding:44px 40px;display:flex;flex-direction:column;gap:18px;cursor:pointer;animation:pop .6s ease both}
-.th:nth-child(2){animation-delay:.15s}.th:nth-child(3){animation-delay:.3s}
+.th{background:#2a2a27;border-radius:22px;padding:44px 40px;display:flex;flex-direction:column;gap:18px;cursor:pointer}
+.th.new{animation:pop .6s ease both}
+.th.new:nth-child(2){animation-delay:.15s}.th.new:nth-child(3){animation-delay:.3s}
 .th b{font-size:72px;line-height:1;color:var(--orange);font-weight:700}
 .th h3{margin:0;font-size:46px;line-height:1.3;font-weight:700;color:var(--paper)}
 .th .cnt{font-size:26px;font-weight:700;color:var(--ink);background:var(--orange);align-self:flex-start;padding:6px 18px;border-radius:999px}
@@ -900,7 +901,7 @@ function show(i, quiet) {
   const id = curId();
   if (id === "board-photos") renderTeam();
   if (id === "board-wall") { wallKey = ""; refreshPledges(); }
-  if (id === "board-summary") { refreshPledges(); }
+  if (id === "board-summary") { sumKey = ""; sumOrder = ""; refreshPledges(); }
   if (id !== "board-wall") closeSpot();
   renderNotes(); renderSide();
   if (!quiet) broadcast();
@@ -1080,7 +1081,7 @@ const THEMES = [
   { t: "동료와 노하우를 나누겠습니다", k: ["동료", "노하우", "나누", "함께", "다른 지점", "모임", "배우"] },
   { t: "나를 챙기며 오래 함께 가겠습니다", k: ["쉬", "휴식", "마음", "챙기", "건강", "스트레스", "여유", "나를"] }
 ];
-let sumPick = {};
+let sumPick = {}, sumKey = "", sumOrder = "";
 function groupPledges(list) {
   const groups = THEMES.map(() => []);
   list.forEach(p => {
@@ -1096,10 +1097,15 @@ function renderSummary() {
   const list = visible();
   $("#sumTotal").textContent = list.length;
   const top = groupPledges(list);
+  const key = list.length + "#" + top.map(g => g.i + ":" + g.items.length + ":" + (sumPick[g.i] || 0)).join("|");
+  if (key === sumKey && box.children.length) return;   // 바뀐 게 없으면 다시 그리지 않음 (깜빡임 방지)
+  sumKey = key;
+  const order = top.map(g => g.i).join(","), anim = order !== sumOrder;
+  sumOrder = order;
   if (!top.length) { box.innerHTML = '<div class="empty" style="color:#8f8b83;border-color:#3a3a36;grid-column:1/-1">다짐이 모이면 세 가지로 정리해 보여 드립니다</div>'; return; }
   box.innerHTML = top.map((g, k) => {
     const ex = g.items[(sumPick[g.i] || 0) % g.items.length].p;
-    return '<div class="th" data-i="' + g.i + '"><b>' + (k + 1) + '</b><h3>' + esc(g.t) + '</h3><span class="cnt">' + g.items.length + '명의 다짐</span><q>' + esc(ex.text) + "</q></div>";
+    return '<div class="th' + (anim ? " new" : "") + '" data-i="' + g.i + '"><b>' + (k + 1) + '</b><h3>' + esc(g.t) + '</h3><span class="cnt">' + g.items.length + '명의 다짐</span><q>' + esc(ex.text) + "</q></div>";
   }).join("");
   $$("#themes .th").forEach(el => el.onclick = () => { const i = +el.dataset.i; sumPick[i] = (sumPick[i] || 0) + 1; renderSummary(); });
 }
@@ -1221,7 +1227,7 @@ function simReset() {
   Sim.reset(); hidden = new Set(); store("rpws-hidden", null);
   Object.keys(photoCache).forEach(k => delete photoCache[k]);
   Object.keys(photoCount).forEach(k => delete photoCount[k]);
-  pledges = []; wallKey = ""; seen = new Set(); sumPick = {}; slog("리허설 기록 초기화");
+  pledges = []; wallKey = ""; seen = new Set(); sumPick = {}; sumKey = ""; sumOrder = ""; slog("리허설 기록 초기화");
   refreshStatus(); if (curId() === "board-wall") renderWall(); if (curId() === "board-summary") renderSummary(); if (curId() === "board-photos") renderTeam(true);
 }
 function simOnEnter(id) {
