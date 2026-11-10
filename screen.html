@@ -823,7 +823,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1110-1749</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -901,7 +901,7 @@ function show(i, quiet) {
   const id = curId();
   if (id === "board-photos") renderTeam();
   if (id === "board-wall") { wallKey = ""; refreshPledges(); }
-  if (id === "board-summary") { sumKey = ""; sumOrder = ""; refreshPledges(); }
+  if (id === "board-summary") { refreshPledges(); }
   if (id !== "board-wall") closeSpot();
   renderNotes(); renderSide();
   if (!quiet) broadcast();
@@ -1081,7 +1081,7 @@ const THEMES = [
   { t: "동료와 노하우를 나누겠습니다", k: ["동료", "노하우", "나누", "함께", "다른 지점", "모임", "배우"] },
   { t: "나를 챙기며 오래 함께 가겠습니다", k: ["쉬", "휴식", "마음", "챙기", "건강", "스트레스", "여유", "나를"] }
 ];
-let sumPick = {}, sumKey = "", sumOrder = "";
+let sumEx = {}, sumOrder = "";
 function groupPledges(list) {
   const groups = THEMES.map(() => []);
   list.forEach(p => {
@@ -1097,17 +1097,37 @@ function renderSummary() {
   const list = visible();
   $("#sumTotal").textContent = list.length;
   const top = groupPledges(list);
-  const key = list.length + "#" + top.map(g => g.i + ":" + g.items.length + ":" + (sumPick[g.i] || 0)).join("|");
-  if (key === sumKey && box.children.length) return;   // 바뀐 게 없으면 다시 그리지 않음 (깜빡임 방지)
-  sumKey = key;
-  const order = top.map(g => g.i).join(","), anim = order !== sumOrder;
-  sumOrder = order;
-  if (!top.length) { box.innerHTML = '<div class="empty" style="color:#8f8b83;border-color:#3a3a36;grid-column:1/-1">다짐이 모이면 세 가지로 정리해 보여 드립니다</div>'; return; }
-  box.innerHTML = top.map((g, k) => {
-    const ex = g.items[(sumPick[g.i] || 0) % g.items.length].p;
-    return '<div class="th' + (anim ? " new" : "") + '" data-i="' + g.i + '"><b>' + (k + 1) + '</b><h3>' + esc(g.t) + '</h3><span class="cnt">' + g.items.length + '명의 다짐</span><q>' + esc(ex.text) + "</q></div>";
-  }).join("");
-  $$("#themes .th").forEach(el => el.onclick = () => { const i = +el.dataset.i; sumPick[i] = (sumPick[i] || 0) + 1; renderSummary(); });
+  if (!top.length) { sumOrder = ""; box.innerHTML = '<div class="empty" style="color:#8f8b83;border-color:#3a3a36;grid-column:1/-1">다짐이 모이면 세 가지로 정리해 보여 드립니다</div>'; return; }
+  // 예시 다짐은 한 번 고르면 고정 (카드를 눌렀을 때만 바뀜)
+  top.forEach(g => { if (!g.items.some(x => String(x.p.id) === sumEx[g.i])) sumEx[g.i] = String(g.items[0].p.id); });
+  // 같은 세 묶음이고 차이가 1명 이하면 기존 순서를 유지해 자리가 자주 바뀌지 않게 합니다
+  const prev = sumOrder ? sumOrder.split(",").map(Number) : [];
+  if (prev.length === top.length && top.every(g => prev.includes(g.i))) {
+    const cnt = i => top.find(g => g.i === i).items.length;
+    const keep = prev.every((i, k) => k === 0 || cnt(prev[k - 1]) + 1 >= cnt(i));
+    if (keep) top.sort((a, b) => prev.indexOf(a.i) - prev.indexOf(b.i));
+  }
+  const order = top.map(g => g.i).join(",");
+  if (order !== sumOrder) {
+    // 처음 들어왔을 때만 등장 효과, 순위가 바뀌면 효과 없이 자리만 바꿈
+    const anim = !box.querySelector(".th");
+    sumOrder = order;
+    box.innerHTML = top.map((g, k) => '<div class="th' + (anim ? " new" : "") + '" data-i="' + g.i + '"><b>' + (k + 1) + '</b><h3>' + esc(g.t) + '</h3><span class="cnt"></span><q></q></div>').join("");
+    $$("#themes .th").forEach(el => el.onclick = () => {
+      const g = groupPledges(visible()).find(x => x.i === +el.dataset.i); if (!g) return;
+      const k = g.items.findIndex(x => String(x.p.id) === sumEx[g.i]);
+      sumEx[g.i] = String(g.items[(k + 1) % g.items.length].p.id);
+      renderSummary();
+    });
+  }
+  // 숫자와 예시만 제자리에서 바꿉니다 (다시 그리지 않음)
+  top.forEach(g => {
+    const el = box.querySelector('.th[data-i="' + g.i + '"]'); if (!el) return;
+    const cnt = g.items.length + "명의 다짐", ex = (g.items.find(x => String(x.p.id) === sumEx[g.i]) || g.items[0]).p.text;
+    const c = el.querySelector(".cnt"), q = el.querySelector("q");
+    if (c.textContent !== cnt) c.textContent = cnt;
+    if (q.textContent !== ex) q.textContent = ex;
+  });
 }
 
 /* ---------- 키보드 · 버튼 ---------- */
@@ -1227,7 +1247,7 @@ function simReset() {
   Sim.reset(); hidden = new Set(); store("rpws-hidden", null);
   Object.keys(photoCache).forEach(k => delete photoCache[k]);
   Object.keys(photoCount).forEach(k => delete photoCount[k]);
-  pledges = []; wallKey = ""; seen = new Set(); sumPick = {}; sumKey = ""; sumOrder = ""; slog("리허설 기록 초기화");
+  pledges = []; wallKey = ""; seen = new Set(); sumEx = {}; sumOrder = ""; slog("리허설 기록 초기화");
   refreshStatus(); if (curId() === "board-wall") renderWall(); if (curId() === "board-summary") renderSummary(); if (curId() === "board-photos") renderTeam(true);
 }
 function simOnEnter(id) {
