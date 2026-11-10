@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우수 사례 제출 · RP 주임단 워크숍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+  :root {
+    --orange:#FFA500; --orange-dark:#C77700; --orange-soft:#FFF6E5;
+    --gray:#737373; --line:#E3E3E3; --bg:#F7F7F5; --ink:#222; --card:#fff;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    font-size:16px; line-height:1.6; -webkit-text-size-adjust:100%; word-break:keep-all; }
+  .wrap { max-width:720px; margin:0 auto; padding:0 16px 64px; }
+  .notice { background:#1E1E1C; color:#F7F6F3; font-size:14px; padding:10px 14px; border-radius:10px; margin-top:16px; }
+  .notice b { color:var(--orange); }
+  header { padding:28px 0 8px; }
+  header img { height:22px; display:block; }
+  h1 { font-size:24px; line-height:1.35; margin:18px 0 6px; letter-spacing:-0.5px; }
+  .meta { color:var(--gray); font-size:14px; }
+  .bar { height:3px; background:var(--orange); margin:16px 0 20px; border-radius:2px; }
+  .lead { background:var(--orange-soft); border-left:4px solid var(--orange); padding:14px 16px; border-radius:6px; font-size:15px; }
+  .lead b { color:var(--orange-dark); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-top:16px; }
+  .card h2 { font-size:17px; margin:0 0 14px; padding-left:10px; border-left:4px solid var(--orange); line-height:1.3; }
+  label.f { display:block; font-weight:500; font-size:15px; margin:14px 0 6px; }
+  label.f:first-of-type { margin-top:0; }
+  .opt { color:var(--gray); font-weight:400; font-size:13px; margin-left:4px; }
+  .req { color:var(--orange-dark); margin-left:2px; }
+  input[type=text], textarea { width:100%; border:1px solid #D5D5D5; border-radius:8px; padding:11px 12px;
+    font:inherit; font-size:16px; background:#fff; color:var(--ink); }
+  input[type=text]:focus, textarea:focus { outline:none; border-color:var(--orange); box-shadow:0 0 0 3px rgba(255,165,0,.18); }
+  textarea { min-height:120px; resize:vertical; }
+  .q + .q { margin-top:24px; }
+  .q-head { display:flex; gap:10px; align-items:flex-start; }
+  .num { flex:0 0 28px; height:28px; border-radius:50%; background:var(--orange); color:#fff; font-weight:700;
+    text-align:center; line-height:28px; font-size:15px; }
+  .q-title { font-weight:700; font-size:17px; line-height:28px; }
+  .hint { color:#555; font-size:14px; margin:6px 0 10px 38px; }
+  .q-body { margin-left:38px; }
+  details { margin-top:8px; font-size:14px; }
+  summary { cursor:pointer; color:var(--orange-dark); font-weight:500; list-style:none; }
+  summary::-webkit-details-marker { display:none; }
+  summary::before { content:"＋ "; }
+  details[open] summary::before { content:"－ "; }
+  .ex { background:#FAFAFA; border:1px dashed #D5D5D5; border-radius:8px; padding:10px 12px; margin-top:6px; color:#444; }
+  .drop { border:2px dashed #D5D5D5; border-radius:10px; padding:18px; text-align:center; color:var(--gray); font-size:14px; cursor:pointer; background:#FCFCFC; }
+  .drop.on { border-color:var(--orange); background:var(--orange-soft); }
+  .drop b { color:var(--ink); }
+  .files { list-style:none; padding:0; margin:10px 0 0; }
+  .files li { display:flex; align-items:center; gap:10px; border:1px solid var(--line);
+    border-radius:8px; padding:8px 10px; margin-top:6px; font-size:14px; }
+  .files img { width:44px; height:44px; object-fit:cover; border-radius:6px; flex:none; background:#eee; }
+  .files .ic { width:44px; height:44px; border-radius:6px; flex:none; background:#F1EFEA; color:var(--gray); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .files span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .files button { border:0; background:none; color:var(--gray); font-size:20px; cursor:pointer; padding:0 4px; }
+  .tip { font-size:13px; color:var(--gray); margin-top:8px; }
+  .rules { margin:0; padding-left:20px; font-size:14px; color:#444; }
+  .agree { display:flex; gap:10px; align-items:flex-start; margin-top:14px; font-size:15px; }
+  .agree input { width:20px; height:20px; margin-top:3px; accent-color:var(--orange); flex:0 0 auto; }
+  .submit { width:100%; margin-top:20px; padding:15px; border:0; border-radius:10px; background:var(--orange);
+    color:#fff; font:inherit; font-size:17px; font-weight:700; cursor:pointer; }
+  .submit:disabled { background:#D5D5D5; cursor:default; }
+  .saved { text-align:center; color:var(--gray); font-size:13px; margin-top:8px; min-height:20px; }
+  .err { color:#C0392B; font-size:14px; margin-top:10px; display:none; }
+  .done { display:none; text-align:center; padding:40px 20px; }
+  .done .check { width:64px; height:64px; border-radius:50%; background:var(--orange); color:#fff; font-size:34px;
+    line-height:64px; margin:0 auto 16px; }
+  .done h2 { border:0; padding:0; font-size:21px; margin:0 0 8px; }
+  footer { color:var(--gray); font-size:13px; text-align:center; margin-top:28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="notice" id="notice" hidden></div>
+  <header>
+    <img src="logo.svg" alt="GoodRich">
+    <h1>RP 주임단 워크숍<br>우수 사례 제출</h1>
+    <div class="meta">제출 기한 2026년 12월 18일(금) · 전략HR팀</div>
+    <div class="bar"></div>
+    <div class="lead">발표자료는 <b>전략HR팀이 만들어 드립니다.</b> 질문마다 생각나는 대로 짧게 적어 주세요. 문장이 매끄럽지 않아도 괜찮습니다.</div>
+  </header>
+
+  <form id="form" novalidate>
+    <section class="card">
+      <h2>기본 정보</h2>
+      <label class="f" for="branch">지점명<span class="req">*</span></label>
+      <input type="text" id="branch" name="branch" autocomplete="off" maxlength="40" required>
+      <label class="f" for="name">이름<span class="req">*</span></label>
+      <input type="text" id="name" name="name" autocomplete="name" maxlength="20" required>
+      <label class="f" for="role">담당 업무 / 근무 기간<span class="opt">예: 지점 계약·마감 관리 / 4년차</span></label>
+      <input type="text" id="role" name="role" autocomplete="off" maxlength="100">
+      <label class="f" for="title">발표 제목<span class="opt">비워 두셔도 됩니다</span></label>
+      <input type="text" id="title" name="title" autocomplete="off" maxlength="100">
+    </section>
+
+    <section class="card">
+      <h2>질문에 답해 주세요</h2>
+
+      <div class="q">
+        <div class="q-head"><div class="num">1</div><div class="q-title">어떤 점이 힘들었나요?<span class="req">*</span></div></div>
+        <div class="hint">시간이 많이 걸리던 일, 자주 실수가 나던 일, RP나 관리자와 소통이 어려웠던 일 등</div>
+        <div class="q-body">
+          <textarea name="q1" id="q1" maxlength="3000" required></textarea>
+          <details><summary>예시 보기</summary><div class="ex">월요일마다 지점 마감 현황을 정리하는 데 2시간 정도 걸렸음. RP별로 따로 물어봐야 해서 누락도 잦았음.</div></details>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><div class="num">2</div><div class="q-title">어떻게 해 봤나요?<span class="req">*</span></div></div>
+        <div class="hint">무엇을 바꿨는지, 어떤 도구(엑셀, AI, 메신저 등)를 썼는지, 어떤 순서로 했는지</div>
+        <div class="q-body">
+          <textarea name="q2" id="q2" maxlength="3000" required></textarea>
+          <details><summary>예시 보기</summary><div class="ex">엑셀 양식을 하나로 통일하고, RP들이 직접 입력하게 바꿈. 요약 문구는 AI로 초안을 만든 뒤 다듬음.</div></details>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><div class="num">3</div><div class="q-title">무엇이 달라졌나요?<span class="req">*</span></div></div>
+        <div class="hint">줄어든 시간이나 건수가 있으면 적어 주세요. 숫자가 없으면 RP·관리자의 반응이나 직접 느낀 변화도 좋습니다.</div>
+        <div class="q-body">
+          <textarea name="q3" id="q3" maxlength="3000" required></textarea>
+          <details><summary>예시 보기</summary><div class="ex">정리 시간이 30분 정도로 줄었음. 관리자님이 보기 편해졌다고 하심.</div></details>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><div class="num">4</div><div class="q-title">동료에게 하고 싶은 한마디는?</div></div>
+        <div class="hint">처음 해 보려는 동료에게 주고 싶은 팁, 시행착오, 응원 한마디</div>
+        <div class="q-body">
+          <textarea name="q4" id="q4" maxlength="3000" style="min-height:90px"></textarea>
+          <details><summary>예시 보기</summary><div class="ex">처음부터 완벽한 양식 말고, 자주 쓰는 항목만 먼저 정리해 보세요.</div></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>참고 자료 올리기 <span class="opt">선택</span></h2>
+      <p style="margin:0 0 12px;font-size:14px;color:#555">업무 화면 캡처, 직접 만든 양식, 바꾸기 전·후 비교 자료, 사진 등이 있으면 올려 주세요. (최대 5개, 파일당 10MB)</p>
+      <div class="drop" id="drop" role="button" tabindex="0"><b>여기를 눌러 파일 선택</b><br>또는 파일을 끌어다 놓으세요</div>
+      <input type="file" id="file" multiple hidden accept="image/*,.pdf,.xlsx,.xls,.docx,.doc,.pptx,.ppt,.hwp,.hwpx">
+      <ul class="files" id="fileList"></ul>
+      <div class="tip">사진·캡처는 발표 화면에 바로 쓸 수 있게 크기를 맞춰 올립니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>꼭 확인해 주세요</h2>
+      <ul class="rules">
+        <li>고객 이름·연락처·증권번호 등 개인정보가 보이는 캡처는 가려 주세요.</li>
+        <li>RP·직원은 실명 대신 "A RP"처럼 적어 주세요.</li>
+        <li>고객 정보를 외부 AI 도구에 입력한 화면은 올리지 마세요.</li>
+      </ul>
+      <label class="agree"><input type="checkbox" id="agree"> 위 내용을 확인했고, 개인정보를 가렸습니다.</label>
+      <button type="submit" class="submit" id="btn">제출하기</button>
+      <div class="saved" id="saved"></div>
+      <div class="err" id="err" role="alert"></div>
+    </section>
+  </form>
+
+  <section class="card done" id="done">
+    <div class="check">✓</div>
+    <h2>제출이 완료되었습니다</h2>
+    <p style="margin:0;color:#555">소중한 경험을 나눠 주셔서 감사합니다.<br>12월 28일(월)까지 HR이 만든 발표자료를 보내 드릴게요.<br>고칠 내용이 생기면 같은 이름으로 다시 제출해 주세요.</p>
+  </section>
+
+  <footer>문의: 전략HR팀 (담당자·연락처 기재)</footer>
+</div>
+
+<script>
+/* 저장 주소는 config.js의 ENDPOINT를 함께 씁니다 → 현장 시트 "우수사례" 탭 */
+const MAX_FILES = 5, MAX_SIZE = 10 * 1024 * 1024, MAX_TOTAL = 30 * 1024 * 1024;
+const IMG_EDGE = 1920;                    // 진행 화면(1920×1080)에 그대로 쓰도록 긴 변 기준으로 줄임
+const DRAFT_KEY = "rpws-case-draft";
+const fields = ["branch", "name", "role", "title", "q1", "q2", "q3", "q4"];
+const form = document.getElementById("form");
+let files = [];
+
+setupNotice();
+
+// 작성 중 내용 임시 저장 (같은 기기에서만)
+try {
+  const d = JSON.parse(store(DRAFT_KEY) || "null");
+  if (d) fields.forEach(f => { if (d[f]) form[f].value = d[f]; });
+} catch (e) {}
+form.addEventListener("input", () => {
+  const d = {}; fields.forEach(f => d[f] = form[f].value);
+  store(DRAFT_KEY, JSON.stringify(d));
+  document.getElementById("saved").textContent = "작성 중인 내용이 이 기기에 임시 저장됩니다.";
+});
+
+// 파일 선택
+const drop = document.getElementById("drop"), input = document.getElementById("file");
+drop.addEventListener("click", () => input.click());
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+input.addEventListener("change", () => { addFiles(input.files); input.value = ""; });
+["dragover", "dragenter"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("on"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("on"); }));
+drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+
+function isPhoto(f) { return /^image\/(jpeg|png|webp|heic|heif|bmp)$/i.test(f.type); }
+function addFiles(list) {
+  showErr("");
+  for (const f of list) {
+    if (files.length >= MAX_FILES) { showErr("파일은 최대 " + MAX_FILES + "개까지 올릴 수 있습니다."); break; }
+    if (f.size > MAX_SIZE && !isPhoto(f)) { showErr(f.name + " 파일이 10MB를 넘습니다."); continue; }
+    files.push(f);
+  }
+  renderFiles();
+}
+function renderFiles() {
+  const ul = document.getElementById("fileList"); ul.innerHTML = "";
+  files.forEach((f, i) => {
+    const li = document.createElement("li");
+    let thumb;
+    if (isPhoto(f)) { thumb = document.createElement("img"); thumb.alt = ""; thumb.src = URL.createObjectURL(f); }
+    else { thumb = document.createElement("div"); thumb.className = "ic"; thumb.textContent = (f.name.split(".").pop() || "파일").toUpperCase().slice(0, 4); }
+    const s = document.createElement("span"); s.textContent = f.name + " (" + (f.size / 1024 / 1024).toFixed(1) + "MB)";
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "×"; b.setAttribute("aria-label", f.name + " 삭제");
+    b.onclick = () => { files.splice(i, 1); renderFiles(); };
+    li.append(thumb, s, b); ul.append(li);
+  });
+}
+
+function readAsDataUrl(f) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = rej; r.readAsDataURL(f); });
+}
+// 사진은 화면용 크기의 JPEG로 바꿔 보냅니다. 읽지 못하는 형식이면 원본 그대로.
+function prepPhoto(f) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(f), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, IMG_EDGE / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve({ name: f.name.replace(/\.[^.]+$/, "") + ".jpg", type: "image/jpeg", data: c.toDataURL("image/jpeg", 0.86).split(",")[1] });
+    };
+    img.onerror = async () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+async function prepFile(f) {
+  if (isPhoto(f)) { const p = await prepPhoto(f); if (p) return p; }
+  if (f.size > MAX_SIZE) throw new Error(f.name + " 파일이 10MB를 넘습니다.");
+  return { name: f.name, type: f.type || "application/octet-stream", data: (await readAsDataUrl(f)).split(",")[1] };
+}
+function showErr(msg) { const e = document.getElementById("err"); e.textContent = msg; e.style.display = msg ? "block" : "none"; }
+
+form.addEventListener("submit", async e => {
+  e.preventDefault(); showErr("");
+  const miss = [["branch", "지점명"], ["name", "이름"], ["q1", "1번 질문"], ["q2", "2번 질문"], ["q3", "3번 질문"]]
+    .filter(([k]) => !form[k].value.trim());
+  if (miss.length) { showErr(miss.map(m => m[1]).join(", ") + "을(를) 입력해 주세요."); form[miss[0][0]].focus(); return; }
+  if (!document.getElementById("agree").checked) { showErr("개인정보 확인란에 체크해 주세요."); return; }
+  if (!SIM && !LIVE) { showErr("저장 주소가 설정되지 않았습니다. 전략HR팀에 알려 주세요."); return; }
+
+  const btn = document.getElementById("btn");
+  btn.disabled = true; btn.textContent = files.length ? "파일을 준비하는 중…" : "제출 중입니다…";
+  try {
+    const payload = { kind: "case", id: "case-" + deviceId() };
+    fields.forEach(f => payload[f] = form[f].value.trim());
+    payload.files = [];
+    for (const f of files) payload.files.push(await prepFile(f));
+    const total = payload.files.reduce((a, f) => a + f.data.length, 0);
+    if (total > MAX_TOTAL * 4 / 3) throw new Error("첨부 파일이 너무 큽니다. 개수를 줄이거나 나눠서 다시 제출해 주세요.");
+    btn.textContent = "제출 중입니다…";
+    const out = await api(payload);
+    if (!out || !out.ok) throw new Error("save");
+    store(DRAFT_KEY, null);
+    form.style.display = "none";
+    document.getElementById("done").style.display = "block";
+    window.scrollTo(0, 0);
+  } catch (err) {
+    const m = String(err && err.message || "");
+    showErr(m && m !== "save" && !/fetch|network|JSON/i.test(m) ? m : "제출 중 문제가 생겼습니다. 잠시 후 다시 시도하거나 전략HR팀에 연락해 주세요. (작성한 내용은 이 기기에 남아 있습니다)");
+    btn.disabled = false; btn.textContent = "제출하기";
+  }
+});
+</script>
+</body>
+</html>
