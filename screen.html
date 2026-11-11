@@ -876,7 +876,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-0930</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-0920</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1026,7 +1026,7 @@ function buildCases() {
   const SEC = "2일차 ② 우수 사례 공유", N = list.length;
   const tag = mode === "sample" ? "예시 내용 · 실제 제출 내용으로 바뀝니다" : mode === "blank" ? "[ ] 안은 제출 내용으로 채움" : "";
   const hm = m => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-  const T0 = 9 * 60 + 20, PER = 12;           // 09:20 시작, 1인 12분(발표 10분 + 전환)
+  const T0 = 9 * 60 + 25, PER = 13;           // 09:25 시작(타임테이블 09:25~10:10), 도입 2분 + 1인 13분(발표 10분 + 질의 3분)
   const add = [];
   const mk = (id, cls, html, entry) => {
     const d = document.createElement("div"); d.className = "sl"; d.dataset.id = id;
