@@ -21,7 +21,7 @@
 .steps li.err i{background:var(--err-soft);color:var(--err)}
 .steps li.run i{background:var(--orange-soft);color:var(--orange-ink)}
 .steps li small{display:block;color:var(--muted);margin-top:2px}
-.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qrs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .qrs a{display:block;text-align:center;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
 .qrs svg{width:100%;height:auto;display:block;margin-bottom:8px}
 .links{display:flex;flex-wrap:wrap;gap:8px}
@@ -46,7 +46,7 @@
 
   <div class="card">
     <h2>자동 점검</h2>
-    <p class="hint">조회 → 다짐 · 사진 · 만족도 저장 → 다시 조회 → 테스트 기록 삭제 순서로 진행합니다. 1조 사진이 이미 3장이면 사진 단계는 실패로 나옵니다.</p>
+    <p class="hint">조회 → 다짐 · 사진 · 만족도 · 우수 사례 저장 → 다시 조회 → 테스트 기록 삭제 순서로 진행합니다. 1조 사진이 이미 3장이면 사진 단계는 실패로 나옵니다.</p>
     <ul class="steps" id="steps"></ul>
     <div class="sum" id="sum"></div>
     <button class="btn orange" id="run">점검 시작</button>
@@ -54,7 +54,7 @@
 
   <div class="card">
     <h2>휴대폰으로 직접 확인</h2>
-    <p class="hint">QR을 휴대폰으로 찍어 실제로 한 번씩 제출해 보세요. 직접 넣은 기록은 시트에서 지워 주셔야 합니다.</p>
+    <p class="hint">QR을 휴대폰으로 찍어 실제로 한 번씩 제출해 보세요. 직접 넣은 기록은 시트에서 지워 주셔야 합니다. 우수 사례 제출은 사진을 첨부해 보면 드라이브 폴더 저장까지 확인할 수 있습니다.</p>
     <div class="qrs" id="qrs"></div>
   </div>
 
@@ -83,6 +83,7 @@ const STEPS = [
   ["사진 저장", "1조로 테스트 사진 1장 보내기 (드라이브 폴더)"],
   ["사진 조회", "조별 발표 보드가 사진을 읽는지"],
   ["만족도 저장", "테스트 응답 1건 보내기"],
+  ["우수 사례 저장", "제출 페이지와 같은 방식으로 테스트 1건 보내기 (첨부 없음)"],
   ["정리", "TEST- 기록 지우고 원래 수로 돌아왔는지"]
 ];
 $("#steps").innerHTML = STEPS.map((s, k) => '<li id="st' + k + '"><i>' + (k + 1) + "</i><div><b>" + s[0] + "</b><small>" + s[1] + "</small></div></li>").join("");
@@ -121,22 +122,28 @@ $("#run").onclick = async () => {
   await step(5, async () => { const [r, ms] = await timed(() => apiGet({ type: "photos", team: 1 })); if (!(r.items || []).length) throw new Error("사진을 읽지 못했습니다"); return "1조 " + r.items.length + "장 · " + ms + "ms"; });
   await step(6, async () => { const r = await api({ kind: "survey", id, row: { "1. 전반 만족": "5", "메모": "연결 점검 테스트" } }); if (!r.ok) throw new Error(r.error || "저장 실패"); return "저장 완료"; });
   await step(7, async () => {
+    const r = await api({ kind: "case", id, branch: "점검", name: "점검", role: "", title: "연결 점검 테스트", q1: "테스트", q2: "테스트", q3: "테스트", q4: "", files: [] });
+    if (r.ok) return "저장 완료 · 시트 '우수사례' 탭";
+    if (r.error === "unknown kind") throw new Error("Apps Script가 아직 예전 코드입니다. 새 Code_현장.gs를 붙여 넣고 [배포 관리] → 수정 → 새 버전으로 배포하세요");
+    throw new Error(r.error || "저장 실패");
+  });
+  await step(8, async () => {
     if (SIM) { return "리허설 모드에서는 진행 화면의 초기화로 정리합니다"; }
     const r = await api({ kind: "cleanup" });
     if (!r.ok) throw new Error(r.error || "정리 실패");
     const s = await apiGet({ type: "status" });
     const same = base && s.pledges === base.pledges && s.surveys === base.surveys;
     if (!same) throw new Error("정리 후 수가 처음과 다릅니다. 시트를 확인하세요");
-    return "다짐 " + r.pledges + " · 사진 " + r.photos + " · 만족도 " + r.surveys + "건 삭제";
+    return "다짐 " + r.pledges + " · 사진 " + r.photos + " · 만족도 " + r.surveys + (r.cases !== undefined ? " · 우수 사례 " + r.cases : "") + "건 삭제";
   });
   $("#sum").textContent = ok === STEPS.length ? "모두 통과했습니다. 행사 당일 그대로 쓰시면 됩니다." : (STEPS.length - ok) + "개 단계가 실패했습니다. 표시된 내용을 확인하세요.";
   $("#run").disabled = false;
 };
 
-const pages = [["사진 올리기", "photo.html"], ["한줄다짐", "pledge.html"], ["만족도 조사", "feedback.html"]];
+const pages = [["사진 올리기", "photo.html"], ["한줄다짐", "pledge.html"], ["만족도 조사", "feedback.html"], ["우수 사례 제출", "submit.html"]];
 $("#qrs").innerHTML = pages.map(([n, f]) => '<a href="' + pageUrl(f) + '" target="_blank">' + QR.svg(pageUrl(f), { label: n + " QR", quiet: 2 }) + n + "</a>").join("");
 $("#links").innerHTML = [
-  ["진행 화면", "screen.html"], ["진행 화면 · 리허설", "screen.html?sim=1"], ["발표자 창", "screen.html?view=presenter"],
+  ["진행 화면", "screen.html"], ["진행 화면 · 리허설", "screen.html?sim=1"], ["발표자 창", "screen.html?view=presenter"], ["우수 사례 제출", "submit.html"],
   ["사전 설문(주임단)", "https://richncohckim-bot.github.io/rp-survey/index.html"], ["사전 설문(관리자·RP)", "https://richncohckim-bot.github.io/rp-survey/manager.html"]
 ].map(([n, f]) => '<a href="' + new URL(f, location.protocol.startsWith("http") ? location.href : SITE).href + '" target="_blank">' + n + "</a>").join("");
 </script>
