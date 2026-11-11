@@ -144,7 +144,7 @@ const pages = [["사진 올리기", "photo.html"], ["한줄다짐", "pledge.html
 $("#qrs").innerHTML = pages.map(([n, f]) => '<a href="' + pageUrl(f) + '" target="_blank">' + QR.svg(pageUrl(f), { label: n + " QR", quiet: 2 }) + n + "</a>").join("");
 $("#links").innerHTML = [
   ["진행 화면", "screen.html"], ["진행 화면 · 리허설", "screen.html?sim=1"], ["발표자 창", "screen.html?view=presenter"], ["우수 사례 제출", "submit.html"],
-  ["사전 설문(주임단)", "https://richncohckim-bot.github.io/rp-survey/index.html"], ["사전 설문(관리자·RP)", "https://richncohckim-bot.github.io/rp-survey/manager.html"]
+  ["사전 설문(주임단)", "https://richncohckim-bot.github.io/rp-survey/index.html"], ["사전 설문(관리자·RP)", "https://richncohckim-bot.github.io/rp-survey/manager.html"], ["사전 설문 응답 현황", "https://richncohckim-bot.github.io/rp-survey/dashboard.html"]
 ].map(([n, f]) => '<a href="' + new URL(f, location.protocol.startsWith("http") ? location.href : SITE).href + '" target="_blank">' + n + "</a>").join("");
 </script>
 </body>
