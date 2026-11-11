@@ -174,6 +174,22 @@ body{font-family:'IBM Plex Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun 
 .cs .lineup b{font-size:64px;line-height:1;color:var(--orange)}
 .cs .lineup h3{font-size:36px;line-height:1.35;font-weight:700}
 .cs .lineup p{font-size:26px;color:var(--soft)}
+/* 휴식 · 마음챙김 */
+.cs .brkrow{display:flex;gap:28px;align-items:stretch}
+.cs .brkrow>div{background:#2C2C29;border-radius:20px;padding:30px 40px;display:flex;flex-direction:column;gap:8px}
+.cs .brkrow>div:first-child{flex:1}
+.cs .brkrow small{font-size:24px;font-weight:700;color:var(--orange)}
+.cs .brkrow p{font-size:40px;font-weight:700}
+.cs .cd{min-width:360px;align-items:flex-end}
+.cs .cd b{font-size:72px;line-height:1;font-variant-numeric:tabular-nums}
+.cs .cd.soon b{color:var(--orange)}
+.cs .mind{display:flex;gap:72px;align-items:center}
+.cs .mtxt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.cs .ytbtn{margin-top:44px;font-size:26px;font-weight:700;color:var(--ink);background:var(--orange);text-decoration:none;padding:14px 28px;border-radius:999px}
+.cs .vframe{width:960px;height:540px;flex:none;background:#000;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:2px solid #3A3A36}
+.cs .vframe iframe{width:100%;height:100%;border:0;display:block}
+.cs .vplay{appearance:none;border:0;background:transparent;color:var(--paper);font:inherit;font-size:34px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:20px}
+.cs .vplay span{width:140px;height:140px;border-radius:50%;background:var(--orange);color:var(--ink);font-size:56px;display:flex;align-items:center;justify-content:center;padding-left:10px}
 /* 발표자 화면 */
 .side{display:none}
 body.presenter{background:#141413}
@@ -876,7 +892,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-0920</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-0935</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1085,6 +1101,63 @@ function buildCases() {
   });
 }
 buildCases();
+/* ============================================================
+   휴식 장 · 2일차 ① 마음챙김 영상 장
+   ============================================================ */
+const MIND = { id: "pW5_MvJYNhA", title: "마음 챙김, 당신을 챙김", by: "유정은 · 마보 대표 | 세바시 1739회" };
+function addSlide(beforeId, id, cls, html, entry) {
+  const anchor = document.querySelector('.sl[data-id="' + beforeId + '"]');
+  const at = DECK.findIndex(d => d.id === beforeId);
+  if (!anchor || at < 0) return;
+  const d = document.createElement("div"); d.className = "sl"; d.dataset.id = id;
+  d.innerHTML = '<section class="cs ' + cls + '">' + html + "</section>";
+  anchor.before(d);
+  DECK.splice(at, 0, Object.assign({ id }, entry));
+}
+function breakSlide(beforeId, id, day, from, to, next, section) {
+  addSlide(beforeId, id, "dark brk", '<div class="vbar"></div>' +
+    '<div class="top"><p class="eb">' + esc(day) + " · 휴식</p><p class=\"pill\">" + esc(from + " ~ " + to) + "</p></div>" +
+    '<div><h1 style="font-size:160px;font-weight:700;line-height:1">잠시 쉬어 갑니다</h1>' +
+    '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b style="color:var(--orange)">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
+    '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd" data-until="' + esc(to) + '"><small>남은 시간</small><b>--:--</b></div></div>',
+    { title: "휴식 · " + to + " 재개", section, time: day + " " + from + " ~ " + to, notes: "휴식 " + from + "~" + to + ". 남은 시간은 이 컴퓨터의 시계 기준으로 줄어듭니다. 재개 1분 전에 자리 착석을 안내합니다." });
+}
+function buildExtras() {
+  breakSlide("cover", "break1", "1일차", "14:30", "14:40", "업무개선 워크숍 · 사전 설문 결과 공유", "세션 도입");
+  breakSlide("solve", "break2", "1일차", "15:30", "15:40", "④-1 개선방향 도출", "조별 토의와 발표");
+  breakSlide("day2", "break3", "2일차", "10:10", "10:20", "③ 디지털·AI 활용", "2일차 ② 우수 사례 공유");
+  const before = DECK.some(d => d.id === "cases") ? "cases" : "day2";
+  addSlide(before, "mind", "dark", '<div class="vbar"></div>' +
+    '<div class="top"><p class="eb">2일차 ① 마음챙김</p><p class="pill">09:00 ~ 09:25</p></div>' +
+    '<div class="mind"><div class="mtxt"><h1 style="font-size:92px;font-weight:700;line-height:1.15">잠시,<br>나를 챙기는 시간</h1>' +
+    '<p style="font-size:38px;font-weight:700;margin-top:48px">' + esc(MIND.title) + '</p><p style="font-size:28px;color:var(--soft);margin-top:10px">' + esc(MIND.by) + "</p>" +
+    '<a class="ytbtn" href="https://www.youtube.com/watch?v=' + MIND.id + '" target="_blank" rel="noopener">유튜브에서 열기 ↗</a></div>' +
+    '<div class="vframe" id="vframe"><button class="vplay" id="vplay" aria-label="영상 재생"><span>▶</span>영상 재생</button></div></div>' +
+    '<div class="foot"><p>영상 약 20분 + 호흡·소감 5분</p><p>세바시 영상은 내려받지 않고 유튜브로 바로 재생합니다</p></div>',
+    { title: "마음챙김 영상", section: "2일차 ① 마음챙김", time: "2일차 09:00 ~ 09:25", notes: "아침 인사 후 바로 재생합니다. ▶를 누르면 화면 안에서 재생되고, 영상이 열리지 않으면 '유튜브에서 열기'로 새 창에서 틀어 주세요. 영상을 클릭한 뒤에는 클리커가 영상 쪽으로 가니, 끝나면 화면 아래 메뉴의 ▶ 버튼이나 화면 빈 곳을 한 번 누른 뒤 넘깁니다. 끝나고 1분 눈 감고 호흡, 옆 사람과 한 문장 소감 나누기(5분)." });
+  const vp = document.getElementById("vplay");
+  if (vp) vp.onclick = () => {
+    $("#vframe").innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + MIND.id + '?autoplay=1&rel=0&modestbranding=1" title="' + esc(MIND.title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+  };
+}
+function stopVideo() {
+  const f = document.querySelector("#vframe iframe"); if (!f) return;
+  $("#vframe").innerHTML = '<button class="vplay" id="vplay" aria-label="영상 다시 재생"><span>▶</span>다시 재생</button>';
+  $("#vplay").onclick = () => { $("#vframe").innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + MIND.id + '?autoplay=1&rel=0&modestbranding=1" title="' + esc(MIND.title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
+}
+buildExtras();
+// 휴식 남은 시간 (이 컴퓨터 시계 기준)
+setInterval(() => {
+  document.querySelectorAll(".cd[data-until]").forEach(el => {
+    const [h, m] = el.dataset.until.split(":").map(Number), now = new Date(), t = new Date(now);
+    t.setHours(h, m, 0, 0);
+    const s = Math.round((t - now) / 1000), b = el.querySelector("b");
+    const txt = s <= 0 || s > 3 * 3600 ? "곧 시작" : String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    if (b.textContent !== txt) b.textContent = txt;
+    el.classList.toggle("soon", s > 0 && s <= 60);
+  });
+}, 1000);
+
 
 /* ---------- 상태 ---------- */
 const slides = $$(".sl");
@@ -1113,6 +1186,7 @@ function show(i, quiet) {
   if (id === "board-wall") { wallKey = ""; refreshPledges(); }
   if (id === "board-summary") { refreshPledges(); }
   if (id !== "board-wall") closeSpot();
+  if (id !== "mind") stopVideo();
   renderNotes(); renderSide();
   if (!quiet) broadcast();
   if (MODE_SIM && !quiet && prevI !== i) simOnEnter(id);
