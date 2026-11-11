@@ -182,7 +182,16 @@ body{font-family:'IBM Plex Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun 
 .cs .brkrow p{font-size:40px;font-weight:700}
 .cs .cd{min-width:360px;align-items:flex-end}
 .cs .cd b{font-size:72px;line-height:1;font-variant-numeric:tabular-nums}
-.cs .cd.soon b{color:var(--orange)}
+.cs .cd.soon b,.cs .cd.done b{color:var(--orange)}
+.cs .cd.done b{animation:blink 1.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
+.cs .ed{cursor:pointer;border-bottom:3px dashed transparent;transition:border-color .2s}
+.cs .ed:hover{border-bottom-color:var(--orange)}
+.cs .rt{color:var(--orange);font-variant-numeric:tabular-nums}
+.cs .brkin{font:inherit;font-weight:700;font-variant-numeric:tabular-nums;color:var(--orange);background:#2C2C29;border:0;border-bottom:3px solid var(--orange);border-radius:6px;padding:0 6px;outline:none;text-align:center}
+.cs .cd .brkin{font-size:72px;line-height:1}
+.cs .brkhint{position:absolute;left:128px;bottom:90px;font-size:22px;color:#77736b;opacity:0;transition:opacity .3s}
+body.awake .cs .brkhint{opacity:1}
 .cs .mind{display:flex;gap:72px;align-items:center}
 .cs .mtxt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
 .cs .ytbtn{margin-top:44px;font-size:26px;font-weight:700;color:var(--ink);background:var(--orange);text-decoration:none;padding:14px 28px;border-radius:999px}
@@ -892,7 +901,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-0935</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1111-1015</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1115,12 +1124,16 @@ function addSlide(beforeId, id, cls, html, entry) {
   DECK.splice(at, 0, Object.assign({ id }, entry));
 }
 function breakSlide(beforeId, id, day, from, to, next, section) {
+  const [fh, fm] = from.split(":").map(Number), [th, tm] = to.split(":").map(Number);
   addSlide(beforeId, id, "dark brk", '<div class="vbar"></div>' +
     '<div class="top"><p class="eb">' + esc(day) + " · 휴식</p><p class=\"pill\">" + esc(from + " ~ " + to) + "</p></div>" +
     '<div><h1 style="font-size:160px;font-weight:700;line-height:1">잠시 쉬어 갑니다</h1>' +
-    '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b style="color:var(--orange)">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
-    '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd" data-until="' + esc(to) + '"><small>남은 시간</small><b>--:--</b></div></div>',
-    { title: "휴식 · " + to + " 재개", section, time: day + " " + from + " ~ " + to, notes: "휴식 " + from + "~" + to + ". 남은 시간은 이 컴퓨터의 시계 기준으로 줄어듭니다. 재개 1분 전에 자리 착석을 안내합니다." });
+    '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b class="ed rt" data-role="resume" title="눌러서 재개 시각 입력 → Enter">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
+    '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 10:00) → Enter">--:--</b></div></div>' +
+    '<p class="brkhint">시각이나 남은 시간을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · Esc 취소</p>',
+    { title: "휴식 · " + to + " 재개", section, time: day + " " + from + " ~ " + to, brkDur: ((th * 60 + tm) - (fh * 60 + fm)) * 60,
+      notes: "휴식 " + from + "~" + to + ". 타이머는 처음에 멈춰 있습니다. 화면의 '남은 시간'을 눌러 10:00처럼 입력하고 Enter를 누르면 바로 줄어들기 시작합니다. 재개 시각(" + to + ")을 눌러 다른 시각을 넣어도 됩니다. 0이 되면 '곧 시작'으로 바뀝니다. 재개 1분 전에 자리 착석을 안내합니다." });
+  const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
 }
 function buildExtras() {
   breakSlide("cover", "break1", "1일차", "14:30", "14:40", "업무개선 워크숍 · 사전 설문 결과 공유", "세션 도입");
@@ -1146,17 +1159,7 @@ function stopVideo() {
   $("#vplay").onclick = () => { $("#vframe").innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + MIND.id + '?autoplay=1&rel=0&modestbranding=1" title="' + esc(MIND.title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
 }
 buildExtras();
-// 휴식 남은 시간 (이 컴퓨터 시계 기준)
-setInterval(() => {
-  document.querySelectorAll(".cd[data-until]").forEach(el => {
-    const [h, m] = el.dataset.until.split(":").map(Number), now = new Date(), t = new Date(now);
-    t.setHours(h, m, 0, 0);
-    const s = Math.round((t - now) / 1000), b = el.querySelector("b");
-    const txt = s <= 0 || s > 3 * 3600 ? "곧 시작" : String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
-    if (b.textContent !== txt) b.textContent = txt;
-    el.classList.toggle("soon", s > 0 && s <= 60);
-  });
-}, 1000);
+
 
 
 /* ---------- 상태 ---------- */
@@ -1172,7 +1175,72 @@ const curId = () => idOf(S.i);
 /* ---------- 슬라이드 전환 ---------- */
 const chan = "BroadcastChannel" in window ? new BroadcastChannel("rpws-screen") : null;
 function broadcast() { if (chan) chan.postMessage({ i: S.i, team: S.team, page: S.page }); }
-if (chan) chan.onmessage = e => { const d = e.data; if (!d || typeof d.i !== "number") return; S.team = d.team; S.page = d.page; show(d.i, true); };
+if (chan) chan.onmessage = e => { const d = e.data; if (d && d.brk) { brkSet(d.brk.id, d.brk.until, true); return; } if (!d || typeof d.i !== "number") return; S.team = d.team; S.page = d.page; show(d.i, true); };
+/* ---------- 휴식 타이머 ----------
+   · '00:00에 다시 시작합니다'의 시각을 누르면 재개 시각 입력 → Enter: 그 시각까지 카운트다운
+   · '남은 시간'을 누르면 10:00처럼 입력 → Enter: 바로 카운트다운 시작 (재개 시각도 자동으로 바뀜)
+   · 발표자 창과 프로젝터 창이 같은 타이머를 공유합니다 */
+const BRK = {};   // id → { until: ms | null, dur: 초 }
+const pad2 = n => String(n).padStart(2, "0");
+const mmss = s => s >= 3600 ? Math.floor(s / 3600) + ":" + pad2(Math.floor(s % 3600 / 60)) + ":" + pad2(s % 60) : pad2(Math.floor(s / 60)) + ":" + pad2(s % 60);
+const hhmm = ms => { const d = new Date(ms); return pad2(d.getHours()) + ":" + pad2(d.getMinutes()); };
+function brkState(id) {
+  if (!BRK[id]) { const e = DECK.find(d => d.id === id) || {}; BRK[id] = { until: null, dur: e.brkDur || 600 }; }
+  return BRK[id];
+}
+function brkSet(id, until, quiet) {
+  const st = brkState(id); st.until = until;
+  const sec = document.querySelector('.sl[data-id="' + id + '"]');
+  if (sec && until) sec.querySelector('[data-role="resume"]').textContent = hhmm(until);
+  brkTick();
+  if (!quiet && chan) chan.postMessage({ brk: { id, until } });
+}
+function brkTick() {
+  document.querySelectorAll(".sl.brkslide").forEach(sl => {
+    const st = brkState(sl.dataset.id), box = sl.querySelector(".cd"), b = box.querySelector('[data-role="remain"]');
+    if (b.tagName !== "B") return;   // 입력 중이면 건드리지 않음
+    let txt, soon = false, done = false;
+    if (!st.until) txt = mmss(st.dur);
+    else {
+      const s = Math.ceil((st.until - Date.now()) / 1000);
+      if (s <= 0) { txt = "곧 시작"; done = true; } else { txt = mmss(s); soon = s <= 60; }
+    }
+    if (b.textContent !== txt) b.textContent = txt;
+    box.classList.toggle("soon", soon); box.classList.toggle("done", done); box.classList.toggle("idle", !st.until);
+  });
+}
+function brkEdit(el, kind) {
+  if (el.tagName !== "B") return;
+  const sl = el.closest(".sl"), id = sl.dataset.id, st = brkState(id);
+  const inp = document.createElement("input");
+  inp.className = "brkin"; inp.dataset.role = el.dataset.role; inp.inputMode = "numeric";
+  inp.value = kind === "resume" ? el.textContent : (st.until ? mmss(Math.max(0, Math.ceil((st.until - Date.now()) / 1000))) : mmss(st.dur));
+  inp.style.width = (kind === "resume" ? 3.6 : 3.9) + "em";
+  el.replaceWith(inp); inp.focus(); inp.select();
+  const restore = () => { const b = document.createElement("b"); b.dataset.role = kind; b.className = el.className; b.title = el.title; b.textContent = el.textContent; b.onclick = () => brkEdit(b, kind); inp.replaceWith(b); brkTick(); };
+  let closed = false;
+  inp.onkeydown = e => {
+    e.stopPropagation();
+    if (e.key === "Escape") { closed = true; restore(); return; }
+    if (e.key !== "Enter") return;
+    const v = inp.value.trim().replace(/[.\s]/g, ":");
+    let until = null;
+    if (kind === "resume") {
+      const m = v.match(/^(\d{1,2}):?(\d{2})$/);
+      if (m && +m[1] < 24 && +m[2] < 60) { const t = new Date(); t.setHours(+m[1], +m[2], 0, 0); until = t.getTime(); el.textContent = pad2(+m[1]) + ":" + m[2]; }
+    } else {
+      const m = v.match(/^(\d{1,3})(?::(\d{1,2}))?$/);
+      if (m && (m[2] === undefined || +m[2] < 60)) { const s = (+m[1]) * 60 + (+(m[2] || 0)); if (s > 0) { until = Date.now() + s * 1000; st.dur = s; } }
+    }
+    if (!until) { inp.style.borderColor = "#E06C5A"; return; }
+    closed = true; restore(); brkSet(id, until);
+  };
+  inp.onblur = () => { if (!closed) { closed = true; restore(); } };
+}
+document.querySelectorAll('.sl.brkslide [data-role]').forEach(b => b.onclick = () => brkEdit(b, b.dataset.role));
+setInterval(brkTick, 500); brkTick();
+
+
 
 function show(i, quiet) {
   i = Math.max(0, Math.min(DECK.length - 1, i));
@@ -1441,7 +1509,7 @@ $("#bPres").onclick = openPresenter; $("#bFs").onclick = fullscreen;
 $("#gridWrap").onclick = e => { if (e.target.id === "gridWrap") toggleGrid(false); };
 if ($("#badge")) $("#badge").onclick = () => $("#simp").classList.toggle("on");
 let hudTimer;
-function wake() { $("#hud").classList.remove("hide"); clearTimeout(hudTimer); hudTimer = setTimeout(() => $("#hud").classList.add("hide"), 2500); }
+function wake() { $("#hud").classList.remove("hide"); document.body.classList.add("awake"); clearTimeout(hudTimer); hudTimer = setTimeout(() => { $("#hud").classList.add("hide"); document.body.classList.remove("awake"); }, 2500); }
 addEventListener("mousemove", wake); wake();
 addEventListener("storage", e => { if (e.key && e.key.indexOf("rpws-sim") >= 0) { refreshStatus(); if (curId() === "board-wall" || curId() === "board-summary") refreshPledges(); } });
 
