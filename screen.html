@@ -901,7 +901,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1112-1600</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1113-0830</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -959,24 +959,24 @@ addEventListener("resize", fit); fit();
    cases.js가 비어 있으면 리허설 모드는 예시, 실제 화면은 [ ] 틀을 보여 줍니다.
    ============================================================ */
 const CASE_SAMPLE = [
-  { order: 1, branch: "서울 A지점", name: "김○○", role: "계약·마감 관리 · 6년차", title: "월요일 마감 정리, 2시간에서 20분으로",
+  { order: 1, branch: "서울 A지점", name: "김○○", title: "월요일 마감 정리, 2시간에서 20분으로",
     problem: { head: "RP마다 따로 묻고 모으느라 월요일 오전이 사라졌습니다", points: ["마감 현황을 RP 20여 명에게 일일이 물어 취합", "사람마다 다른 엑셀 양식을 다시 옮겨 적기", "옮기다 빠진 건이 생겨 관리자님께 재확인"], images: [{ src: "mock:messy:RP별로 제각각인 마감 파일", cap: "바꾸기 전 · RP별 파일" }] },
     method: { head: "양식을 하나로 만들고 RP가 직접 채우게 바꿨습니다", steps: ["공유 엑셀 양식 하나로 통일", "RP가 금요일까지 직접 입력, 빈칸은 자동으로 색 표시", "합계와 누락 확인은 함수로 자동 계산"], images: [{ src: "mock:sheet:통합 마감 현황표", cap: "바꾼 뒤 · 통합 양식" }] },
     change: { head: "취합 시간이 줄고, 빠지는 건이 사라졌습니다", before: { value: "2시간", label: "월요일 마감 정리" }, after: { value: "20분", label: "양식 확인만" }, points: ["누락 때문에 다시 묻는 일이 거의 없음", "관리자님도 같은 표로 바로 확인"] },
     word: "처음부터 완벽한 양식 말고, 자주 쓰는 항목만 먼저 묶어 보세요." },
-  { order: 2, branch: "경기 B지점", name: "이○○", role: "RP 위촉·교육 지원 · 3년차", title: "같은 질문 열 번, 답변집 하나로",
+  { order: 2, branch: "경기 B지점", name: "이○○", title: "같은 질문 열 번, 답변집 하나로",
     problem: { head: "신규 RP의 같은 질문에 하루 종일 답하고 있었습니다", points: ["위촉 서류·전산 사용법 문의가 하루 15건 안팎", "답할 때마다 설명이 조금씩 달라짐", "정작 서류 처리는 퇴근 무렵으로 밀림"], images: [] },
     method: { head: "자주 묻는 질문을 모아 생성형 AI로 답변 초안을 만들었습니다", steps: ["한 달 동안 받은 질문을 그대로 기록", "AI로 쉬운 말투의 답변 초안을 만든 뒤 직접 다듬기", "지점 단체방 공지에 고정, 신규 RP 첫날 함께 안내"], images: [{ src: "mock:chat:답변 초안 만들기", cap: "AI로 만든 답변 초안 · 고객 정보 입력 없음" }] },
     change: { head: "문의가 줄고, 안내가 한결같아졌습니다", before: { value: "15건", label: "하루 평균 문의" }, after: { value: "5건", label: "답변집 이후" }, points: ["신규 RP 적응이 빨라졌다는 관리자 의견", "남는 시간에 서류 점검을 먼저 끝냄"] },
     word: "답변집은 한 번에 만들지 말고, 받은 질문을 적어 두는 것부터 시작하세요." },
-  { order: 3, branch: "부산 C지점", name: "박○○", role: "청약 서류 접수 · 8년차", title: "서류 반려, 접수 전 체크 한 장으로",
+  { order: 3, branch: "부산 C지점", name: "박○○", title: "서류 반려, 접수 전 체크 한 장으로",
     problem: { head: "마감 직전 반려된 서류 때문에 매번 RP와 다시 연락했습니다", points: ["서명 누락·첨부 빠짐 같은 반복 실수", "반려 사유를 RP에게 다시 설명하고 재접수", "마감 날마다 늦게까지 남음"], images: [] },
     method: { head: "자주 반려되는 항목을 체크리스트 한 장으로 정리했습니다", steps: ["지난 석 달 반려 사유를 모아 자주 나온 8개 추리기", "접수 전 RP와 함께 체크, 빠진 칸은 그 자리에서 보완", "상품군별로 나눠 책상과 단체방에 공유"], images: [{ src: "mock:check:접수 전 체크리스트", cap: "접수 전 체크리스트" }] },
     change: { head: "반려가 줄어 마감 날이 조용해졌습니다", before: { value: "월 12건", label: "서류 반려" }, after: { value: "월 3건", label: "체크리스트 이후" }, points: ["RP도 스스로 체크해서 가져옴", "마감일 늦은 퇴근이 거의 없어짐"] },
     word: "실수를 탓하기보다, 실수하기 어려운 순서를 만드는 게 빨랐어요." }
 ];
 function blankCase(n) {
-  return { order: n, branch: "[지점명]", name: "[이름]", role: "[담당 업무 · 근무 기간]", title: "[발표 제목]",
+  return { order: n, branch: "[지점명]", name: "[이름]", title: "[발표 제목]",
     problem: { head: "[힘들었던 점 한 문장]", points: ["[장면 1]", "[장면 2]", "[장면 3]"], images: [] },
     method: { head: "[해 본 것 한 문장]", steps: ["[1단계]", "[2단계]", "[3단계]"], images: [] },
     change: { head: "[달라진 점 한 문장]", before: { value: "[이전]", label: "[무엇]" }, after: { value: "[지금]", label: "[무엇]" }, points: ["[변화]"] },
@@ -1076,7 +1076,7 @@ function buildCases() {
 
     mk(pre + "cover", "dark", '<div class="vbar"></div>' +
       '<div class="top"><p class="eb">2일차 ② 우수 사례 공유</p><p class="pill">발표 ' + n + " / " + N + "</p></div>" +
-      '<div><h1 style="font-size:' + tsize + 'px;font-weight:700;line-height:1.15">' + esc(c.title || "") + '</h1><p class="who" style="margin-top:44px">' + esc(who) + '</p><p class="role">' + esc(c.role || "") + "</p></div>" +
+      '<div><h1 style="font-size:' + tsize + 'px;font-weight:700;line-height:1.15">' + esc(c.title || "") + '</h1><p class="who" style="margin-top:44px">' + esc(who) + '</p>' + (c.role ? '<p class="role">' + esc(c.role) + "</p>" : "") + "</div>" +
       '<div class="flow"><p><b>01</b>힘들었던 점</p><em>→</em><p><b>02</b>해 본 것</p><em>→</em><p><b>03</b>달라진 점</p></div>' +
       foot(tag, "1/4"),
       { title: "발표 " + n + " · " + (c.title || ""), time: "2일차 " + hm(t), notes: NT.cover || "발표자 소개(지점·이름·담당 업무) 후 무대로 모십니다. 발표자가 제목을 직접 읽으며 시작합니다." });

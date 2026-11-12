@@ -9,7 +9,7 @@ const CASES = [
   /*
   {
     order: 1,                                   // 발표 순서
-    branch: "서울 A지점", name: "김○○", role: "계약·마감 관리 · 6년차",
+    branch: "서울 A지점", name: "김○○",
     title: "월요일 마감 정리, 2시간에서 20분으로",
     problem: { head: "한 문장 요약", points: ["장면 1", "장면 2", "장면 3"],
                images: [{ src: "cases/1-problem.jpg", cap: "바꾸기 전" }] },

@@ -93,8 +93,6 @@
       <input type="text" id="branch" name="branch" autocomplete="off" maxlength="40" required>
       <label class="f" for="name">이름<span class="req">*</span></label>
       <input type="text" id="name" name="name" autocomplete="name" maxlength="20" required>
-      <label class="f" for="role">담당 업무 / 근무 기간<span class="opt">예: 지점 계약·마감 관리 / 4년차</span></label>
-      <input type="text" id="role" name="role" autocomplete="off" maxlength="100">
       <label class="f" for="title">발표 제목<span class="opt">비워 두셔도 됩니다</span></label>
       <input type="text" id="title" name="title" autocomplete="off" maxlength="100">
     </section>
@@ -176,7 +174,7 @@
 const MAX_FILES = 5, MAX_SIZE = 10 * 1024 * 1024, MAX_TOTAL = 30 * 1024 * 1024;
 const IMG_EDGE = 1920;                    // 진행 화면(1920×1080)에 그대로 쓰도록 긴 변 기준으로 줄임
 const DRAFT_KEY = "rpws-case-draft";
-const fields = ["branch", "name", "role", "title", "q1", "q2", "q3", "q4"];
+const fields = ["branch", "name", "title", "q1", "q2", "q3", "q4"];
 const form = document.getElementById("form");
 let files = [];
 
