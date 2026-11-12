@@ -26,7 +26,7 @@
     <div class="eyebrow">2027 RP 주임단 워크숍</div>
     <h1>만족도 조사</h1>
     <p>응답은 익명으로 처리되며, 다음 워크숍을 준비하는 데에만 활용합니다.</p>
-    <span class="chip">약 3분 소요 · 6장</span>
+    <span class="chip">약 3분 소요 · 7장</span>
   </div>
 
   <div class="notice" id="notice" hidden></div>
@@ -58,8 +58,9 @@ setupNotice();
 const AGREE = ["전혀 아니다", "아니다", "보통", "그렇다", "매우 그렇다"];
 const SATIS = ["매우 불만족", "불만족", "보통", "만족", "매우 만족"];
 const PROGRAMS = [
-  "보험시장의 변화와 주임단의 역할",
-  "준법: 규제·컴플라이언스",
+  "굿리치의 인재상",
+  "주임단의 역할",
+  "직급별 역할",
   "업무개선 워크숍(조별 토의·발표)",
   "소통의 시간(본사 임직원과 석식)",
   "마음챙김",
@@ -78,8 +79,9 @@ const SECTIONS = [
     { id: "a4", key: "4. 실무 적용", type: "scale", labels: AGREE, label: "4. 배운 내용을 현장 업무에 적용할 수 있다", req: true },
     { id: "a5", key: "5. 소통·교류", type: "scale", labels: AGREE, label: "5. 다른 주임단·본사 임직원과 충분히 소통하고 교류했다", req: true }
   ]},
-  { title: "프로그램별 만족도 · 1일차", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items: PROG_ITEMS.slice(0, 4) },
-  { title: "프로그램별 만족도 · 2일차", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items: PROG_ITEMS.slice(4) },
+  { title: "프로그램별 만족도 · 1일차 교육", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items: PROG_ITEMS.slice(0, 3) },
+  { title: "프로그램별 만족도 · 1일차 워크숍·소통", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items: PROG_ITEMS.slice(3, 5) },
+  { title: "프로그램별 만족도 · 2일차", hint: "6. 각 프로그램은 얼마나 만족스러웠나요?", items: PROG_ITEMS.slice(5) },
   { title: "가장 도움이 된 프로그램", items: [
     { id: "b8", key: "7. 가장 도움된 프로그램", type: "radio", label: "7. 가장 도움이 된 프로그램 하나를 골라 주세요", options: PROGRAMS, req: true }
   ]},
