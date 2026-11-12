@@ -46,6 +46,7 @@
     <div class="mark">✓</div>
     <h2>소중한 의견 감사합니다</h2>
     <p>이틀 동안 함께해 주셔서 고맙습니다.<br>조심히 돌아가세요.</p>
+    <p class="hint" id="simDone" hidden style="margin-top:12px;color:var(--err)">리허설 모드(?sim=1)라 구글 시트에는 저장되지 않았습니다.</p>
   </div>
 
   <div class="foot">2027 RP 주임단 워크숍 · 전략HR팀</div>
@@ -230,6 +231,13 @@ $("#send").addEventListener("click", async () => {
     btn.disabled = false;
   }
 });
+
+/* 테스트용 초기화: 주소 끝에 ?reset=1 → 제출 완료 표시와 임시 저장을 지우고 처음부터 */
+if (new URLSearchParams(location.search).has("reset")) {
+  ["rpws-fb-done", "rpws-fb-draft", "rpws-fb-page"].forEach(k => store(k, null));
+  history.replaceState(null, "", location.pathname + location.search.replace(/([?&])reset(=[^&]*)?&?/, "$1").replace(/[?&]$/, ""));
+}
+if (SIM) $("#simDone").hidden = false;
 
 build(); loadDraft();
 show(parseInt(store("rpws-fb-page") || "0", 10) || 0);
