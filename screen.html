@@ -916,10 +916,11 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1113-1500b</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1113-1540</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
+  <button id="bSnd" title="M · 타이머 배경음악 켜기/끄기">소리 M</button>
   <button id="bPres" title="P">발표자 창 P</button>
   <button id="bFs" title="F">전체 화면 F</button>
 </div>
@@ -1145,7 +1146,7 @@ function breakSlide(beforeId, id, day, from, to, next, section) {
     '<div><h1 style="font-size:160px;font-weight:700;line-height:1">잠시 쉬어 갑니다</h1>' +
     '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b class="ed rt" data-role="resume" title="눌러서 재개 시각 입력 → Enter">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
     '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 10:00) → Enter">--:--</b></div></div>' +
-    '<p class="brkhint">시각이나 남은 시간을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · Esc 취소</p>',
+    '<p class="brkhint">시각이나 남은 시간을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
     { title: "휴식 · " + to + " 재개", section, time: day + " " + from + " ~ " + to, brkDur: ((th * 60 + tm) - (fh * 60 + fm)) * 60,
       notes: "휴식 " + from + "~" + to + ". 타이머는 처음에 멈춰 있습니다. 화면의 '남은 시간'을 눌러 10:00처럼 입력하고 Enter를 누르면 바로 줄어들기 시작합니다. 재개 시각(" + to + ")을 눌러 다른 시각을 넣어도 됩니다. 0이 되면 '곧 시작'으로 바뀝니다. 재개 1분 전에 자리 착석을 안내합니다." });
   const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
@@ -1165,8 +1166,8 @@ function workSlide(beforeId, id, o) {
     '<div class="wk' + (o.cols ? " mini" : "") + '">' + tp.map(t => "<div><small>" + esc(t.lab) + "</small><p>" + esc(t.q) + "</p></div>").join("") + "</div>" +
     (o.cols ? '<div class="who3">' + o.cols.map((c, k) => "<div><b>0" + (k + 1) + "</b><h3>" + esc(c[0]) + "</h3><p>" + esc(c[1]) + "</p></div>").join("") + "</div>" : "") +
     '<div class="brkrow"><div><small>' + esc(o.stepsLabel) + '</small><p class="wksteps">' + o.steps.map(esc).join("<em>→</em>") + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 30:00) → Enter">--:--</b></div></div>' +
-    '<p class="brkhint">남은 시간이나 종료 시각을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · Esc 취소</p>',
-    { title: o.title, section: "조별 토의와 발표", time: "1일차 " + o.from + " ~ " + o.to, brkDur: min * 60, brkDone: "시간 종료", notes: o.notes });
+    '<p class="brkhint">남은 시간이나 종료 시각을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
+    { title: o.title, section: "조별 토의와 발표", time: "1일차 " + o.from + " ~ " + o.to, brkDur: min * 60, brkDone: "시간 종료", kind: "work", notes: o.notes });
   const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
 }
 function buildExtras() {
@@ -1220,6 +1221,94 @@ if (chan) chan.onmessage = e => { const d = e.data; if (d && d.brk) { brkSet(d.b
    · '00:00에 다시 시작합니다'의 시각을 누르면 재개 시각 입력 → Enter: 그 시각까지 카운트다운
    · '남은 시간'을 누르면 10:00처럼 입력 → Enter: 바로 카운트다운 시작 (재개 시각도 자동으로 바뀜)
    · 발표자 창과 프로젝터 창이 같은 타이머를 공유합니다 */
+/* ---------- 타이머 배경음악 ----------
+   · 휴식 장: 타이머가 도는 동안 잔잔한 음악이 반복(시간을 18분으로 바꾸면 18분 동안), 끝나면 2초 동안 작아지며 멈춤
+   · 활동 장: 타이머가 도는 동안 차분한 음악이 반복, 끝나면 가보트풍 알림(약 3초)
+   · 다른 장으로 넘기면 음악이 멈추고, 돌아오면 다시 흐름
+   · M 키 또는 '소리' 버튼: 켜기/끄기(켤 때 알림을 한 번 들려줌)
+   · 발표자 창에서는 울리지 않고 프로젝터 창에서만 울림
+   · 브라우저 정책상 그 창을 한 번 클릭하거나 키를 눌러야 소리가 납니다 */
+const SND = { on: store("rpws-snd") !== "off", ctx: null };
+function sndCtx() {
+  if (!SND.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; SND.ctx = new AC(); }
+  if (SND.ctx.state === "suspended") SND.ctx.resume();
+  return SND.ctx;
+}
+addEventListener("pointerdown", sndCtx, { once: true }); addEventListener("keydown", sndCtx, { once: true });
+/* ---- 배경 음악 엔진 (직접 지은 곡, 브라우저에서 실시간 연주) ----
+   rest: 쉬는 시간 · 3/4 잔잔한 미뉴에트풍(하프 아르페지오 + 오르골 멜로디), ♩=66
+   work: 활동 시간 · 4/4 차분한 아르페지오(집중용, 멜로디 거의 없음), ♩=72
+   gavotte: 활동 끝 알림 · 가보트풍 약 3초 */
+const BGMX = (() => {
+  const F = n => 440 * Math.pow(2, (n - 69) / 12);
+  const TONES = { harp: [[1, "triangle", 1], [2, "sine", .3], [3, "sine", .12]], box: [[1, "sine", 1], [4, "sine", .16], [2, "sine", .1]], soft: [[1, "sine", 1], [2, "triangle", .18]] };
+  function note(ctx, out, t, n, dur, vol, tone, rel) {
+    TONES[tone].forEach(([m, ty, v]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = ty; o.frequency.value = F(n) * m;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol * v, t + (tone === "soft" ? .06 : .01));
+      g.gain.exponentialRampToValueAtTime(vol * v * .3, t + Math.min(.35, dur * .7));
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur + (rel || .5));
+      o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + (rel || .5) + .05);
+    });
+  }
+  // 화음: [베이스, 화음 구성음들]
+  const REST = [[43, [55, 59, 62]], [40, [52, 55, 59]], [36, [52, 55, 60]], [38, [54, 57, 62]], [43, [55, 59, 62]], [47, [54, 59, 62]], [36, [52, 55, 60]], [38, [54, 57, 62]]];
+  const REST_MEL = [[79, 0, 3], [83, 4, 2], [79, 0, 6], null, [78, 0, 3], [81, 4, 2], [76, 0, 3], [74, 2, 4], [79, 0, 6], null, [79, 0, 2], [83, 2, 2], [84, 0, 3], [79, 4, 2], [78, 0, 6], null];
+  const WORK = [[48, [55, 60, 64]], [45, [57, 60, 64]], [41, [57, 60, 65]], [43, [55, 59, 62]], [48, [55, 60, 64]], [45, [55, 60, 64]], [41, [53, 57, 60]], [43, [55, 59, 62]]];
+  const KIND = {
+    rest: { beat: 60 / 66, beats: 3, vol: .32 },
+    work: { beat: 60 / 72, beats: 4, vol: .22 }
+  };
+  function barLen(kind) { return KIND[kind].beat * KIND[kind].beats; }
+  function bar(ctx, out, t, i, kind) {
+    const k = KIND[kind], e = k.beat / 2;
+    if (kind === "rest") {
+      const [b, ch] = REST[i % 8], arp = [b + 12, ch[0], ch[1], ch[2], ch[1], ch[0]];
+      note(ctx, out, t, b, k.beat * 3, .16, "harp", 1.2);
+      arp.forEach((n, j) => note(ctx, out, t + j * e, n, e * 1.5, .085, "harp", .8));
+      const m = REST_MEL[i % 16]; if (m) note(ctx, out, t + m[1] * e, m[0], m[2] * e, .07, "box", 1.4);
+    } else {
+      const [b, ch] = WORK[i % 8], arp = [ch[0], ch[1], ch[2], ch[1] + 12, ch[2], ch[1], ch[0], ch[1]];
+      note(ctx, out, t, b, k.beat * 4, .12, "soft", 1.5);
+      arp.forEach((n, j) => note(ctx, out, t + j * e, n, e * 1.6, .055, "soft", .9));
+      if (i % 4 === 3) note(ctx, out, t + 4 * e, ch[2] + 12, e * 4, .035, "box", 1.6);
+    }
+  }
+  function gavotte(ctx, out, t0) {   // 가보트풍 마지막 구절만 · 약 3초
+    const e = 60 / 150 / 2;
+    const mel = [[0,74,1],[1,76,1],[2,78,1],[3,79,1],[4,81,1],[5,78,1],[6,79,2],[8,74,1],[9,79,3]];
+    const bass = [[0,50,2],[2,50,2],[4,50,2],[6,43,2],[8,50,1],[9,43,3]];
+    mel.forEach(([s, n, l]) => note(ctx, out, t0 + s * e, n, l * e, .3, "harp", .3));
+    bass.forEach(([s, n, l]) => note(ctx, out, t0 + s * e, n, l * e, .13, "harp", .3));
+    [55, 59, 62, 67].forEach(n => note(ctx, out, t0 + 9 * e, n, 3 * e, .12, "harp", .35));
+    return 12 * e + .35;
+  }
+  return { bar, barLen, gavotte, KIND };
+})();
+
+const BG = { kind: null, out: null, timer: null, next: 0, bar: 0 };
+function sndReady() { const c = sndCtx(); return SND.on && !PRESENTER && c && c.state === "running" ? c : null; }
+function bgStart(kind) {
+  const ctx = sndReady(); if (!ctx) return;
+  bgStop(0);
+  const out = ctx.createGain(), v = BGMX.KIND[kind].vol, t = ctx.currentTime;
+  out.connect(ctx.destination); out.gain.setValueAtTime(.0001, t); out.gain.exponentialRampToValueAtTime(v, t + 2);
+  Object.assign(BG, { kind, out, next: t + .1, bar: 0 });
+  const pump = () => { while (BG.out === out && BG.next < ctx.currentTime + 1.2) { BGMX.bar(ctx, out, BG.next, BG.bar++, kind); BG.next += BGMX.barLen(kind); } };
+  pump(); BG.timer = setInterval(pump, 300);
+}
+function bgStop(fade) {
+  if (!BG.out) return;
+  clearInterval(BG.timer);
+  const ctx = SND.ctx, o = BG.out, t = ctx.currentTime;
+  o.gain.cancelScheduledValues(t); o.gain.setValueAtTime(Math.max(o.gain.value, .0001), t); o.gain.exponentialRampToValueAtTime(.0001, t + Math.max(fade, .05));
+  setTimeout(() => o.disconnect(), (fade + .3) * 1000);
+  BG.out = null; BG.kind = null;
+}
+function playEnd() { const ctx = sndReady(); if (!ctx) return; const o = ctx.createGain(); o.gain.value = .55; o.connect(ctx.destination); BGMX.gavotte(ctx, o, ctx.currentTime + .05); }
+function sndUi() { const b = $("#bSnd"); if (b) { b.textContent = SND.on ? "소리 켬 M" : "소리 끔 M"; b.style.opacity = SND.on ? 1 : .55; } }
+function sndToggle() { SND.on = !SND.on; store("rpws-snd", SND.on ? null : "off"); sndUi(); if (SND.on) { sndCtx(); setTimeout(playEnd, 120); } else bgStop(.5); }
 const BRK = {};   // id → { until: ms | null, dur: 초 }
 const pad2 = n => String(n).padStart(2, "0");
 const mmss = s => s >= 3600 ? Math.floor(s / 3600) + ":" + pad2(Math.floor(s % 3600 / 60)) + ":" + pad2(s % 60) : pad2(Math.floor(s / 60)) + ":" + pad2(s % 60);
@@ -1229,7 +1318,7 @@ function brkState(id) {
   return BRK[id];
 }
 function brkSet(id, until, quiet) {
-  const st = brkState(id); st.until = until;
+  const st = brkState(id); st.until = until; st.armed = !!until && until > Date.now(); sndCtx();
   const sec = document.querySelector('.sl[data-id="' + id + '"]');
   if (sec && until) sec.querySelector('[data-role="resume"]').textContent = hhmm(until);
   brkTick();
@@ -1243,12 +1332,16 @@ function brkTick() {
     if (!st.until) txt = mmss(st.dur);
     else {
       const s = Math.ceil((st.until - Date.now()) / 1000);
-      if (s <= 0) { txt = (DECK.find(d => d.id === sl.dataset.id) || {}).brkDone || "곧 시작"; done = true; } else { txt = mmss(s); soon = s <= 60; }
+      if (s <= 0) { txt = (DECK.find(d => d.id === sl.dataset.id) || {}).brkDone || "곧 시작"; done = true; if (st.armed && s > -5) { st.armed = false; if (sl.classList.contains("on")) { if (isWork(sl.dataset.id)) { bgStop(.8); setTimeout(playEnd, 400); } else bgStop(2); } } } else { txt = mmss(s); soon = s <= 60; }
     }
     if (b.textContent !== txt) b.textContent = txt;
     box.classList.toggle("soon", soon); box.classList.toggle("done", done); box.classList.toggle("idle", !st.until);
   });
+  const on = document.querySelector(".sl.on.brkslide"), st = on && brkState(on.dataset.id);
+  const want = st && st.until && st.until > Date.now() ? (isWork(on.dataset.id) ? "work" : "rest") : null;
+  if (want !== BG.kind) { if (want) bgStart(want); else bgStop(1); }
 }
+function isWork(id) { return (DECK.find(d => d.id === id) || {}).kind === "work"; }
 function brkEdit(el, kind) {
   if (el.tagName !== "B") return;
   const sl = el.closest(".sl"), id = sl.dataset.id, st = brkState(id);
@@ -1537,6 +1630,7 @@ addEventListener("keydown", e => {
   else if (k === "f" || k === "F") fullscreen();
   else if (k === "g" || k === "G") toggleGrid();
   else if (k === "n" || k === "N") $("#notes").classList.toggle("on");
+  else if (k === "m" || k === "M") sndToggle();
   else if (k === "b" || k === "B" || k === ".") $("#black").classList.toggle("on");
   else if (k === "p" || k === "P") openPresenter();
   else if ((k === "s" || k === "S") && MODE_SIM) $("#simp").classList.toggle("on");
@@ -1546,6 +1640,7 @@ addEventListener("keydown", e => {
 $("#bPrev").onclick = prev; $("#bNext").onclick = next;
 $("#bGrid").onclick = () => toggleGrid(); $("#bNotes").onclick = () => $("#notes").classList.toggle("on");
 $("#bPres").onclick = openPresenter; $("#bFs").onclick = fullscreen;
+$("#bSnd").onclick = sndToggle; sndUi();
 $("#gridWrap").onclick = e => { if (e.target.id === "gridWrap") toggleGrid(false); };
 if ($("#badge")) $("#badge").onclick = () => $("#simp").classList.toggle("on");
 let hudTimer;
