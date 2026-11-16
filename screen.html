@@ -1146,7 +1146,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1116-1730</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1116-1815</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1374,15 +1374,16 @@ function addSlide(beforeId, id, cls, html, entry) {
   anchor.before(d);
   DECK.splice(at, 0, Object.assign({ id }, entry));
 }
-function breakSlide(beforeId, id, day, from, to, next, section) {
+function breakSlide(beforeId, id, day, from, to, next, section, o) {
+  o = o || {};
   const [fh, fm] = from.split(":").map(Number), [th, tm] = to.split(":").map(Number);
   addSlide(beforeId, id, "dark brk", '<div class="vbar"></div>' +
-    '<div class="top"><p class="eb">' + esc(day) + " · 휴식</p><p class=\"pill\">" + esc(from + " ~ " + to) + "</p></div>" +
-    '<div><h1 style="font-size:160px;font-weight:700;line-height:1">잠시 쉬어 갑니다</h1>' +
+    '<div class="top"><p class="eb">' + esc(day) + " · " + esc(o.eb || "휴식") + "</p><p class=\"pill\">" + esc(from + " ~ " + to) + "</p></div>" +
+    '<div><h1 style="font-size:160px;font-weight:700;line-height:1">' + esc(o.head || "잠시 쉬어 갑니다") + '</h1>' + (o.sub ? (o.walk ? '<div style="display:grid;grid-template-columns:auto 260px auto;grid-template-rows:60px 60px 60px;column-gap:18px;row-gap:8px;align-items:center;justify-content:start;margin-top:24px;font-size:40px;color:var(--soft)">' + '<p style="white-space:nowrap;grid-row:1;grid-column:1">' + esc(o.sub) + '</p><svg width="260" height="196" viewBox="0 0 260 196" style="grid-row:1 / span 3;grid-column:2;overflow:visible" fill="none" stroke="#7A7871" stroke-width="5" stroke-linecap="round" stroke-dasharray="0.1 13"><path d="M6 30 C 80 -34, 170 94, 252 30"/><path d="M6 30 C 40 30, 50 98, 100 98 C 145 58, 205 138, 252 98"/><path d="M6 30 C 30 30, 46 166, 96 166 C 141 126, 205 206, 252 166"/><circle cx="6" cy="30" r="7" fill="#7A7871" stroke="none"/></svg>' + o.walk.map((w, i) => '<p style="grid-row:' + (i + 1) + ';grid-column:3;display:flex;align-items:center;gap:14px;white-space:nowrap;color:#F7F6F3;font-weight:700"><svg viewBox="0 0 24 24" width="38" height="38" fill="#FFA500" style="flex:0 0 auto"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>' + esc(w[0]) + ' <b style="color:var(--orange);font-weight:800;margin-left:6px">' + esc(w[1]) + '</b></p>').join('') + '</div>' : '<p style="font-size:40px;color:var(--soft);margin-top:28px">' + esc(o.sub) + '</p>') : '') + '' +
     '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b class="ed rt" data-role="resume" title="눌러서 재개 시각 입력 → Enter">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
     '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 10:00) → Enter">--:--</b></div></div>' +
     '<p class="brkhint">시각이나 남은 시간을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
-    { title: "휴식 · " + to + " 재개", section, time: day + " " + from + " ~ " + to, brkDur: ((th * 60 + tm) - (fh * 60 + fm)) * 60,
+    { title: (o.eb || "휴식") + " · " + to + " 재개", section, time: day + " " + from + " ~ " + to, brkDur: ((th * 60 + tm) - (fh * 60 + fm)) * 60,
       notes: "휴식 " + from + "~" + to + ". 타이머는 처음에 멈춰 있습니다. 화면의 '남은 시간'을 눌러 10:00처럼 입력하고 Enter를 누르면 바로 줄어들기 시작합니다. 재개 시각(" + to + ")을 눌러 다른 시각을 넣어도 됩니다. 0이 되면 '곧 시작'으로 바뀝니다. 재개 1분 전에 자리 착석을 안내합니다." });
   const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
 }
@@ -1407,6 +1408,7 @@ function workSlide(beforeId, id, o) {
 }
 function buildExtras() {
   breakSlide("cover", "break1", "1일차", "14:30", "14:50", "업무개선 워크숍 · 사전 설문 결과 공유", "세션 도입");
+  breakSlide("break1", "lunch1", "1일차", "11:30", "13:00", "굿리치 Value CODE", "1일차 오전 · 과정 안내", { eb: "점심", head: "점심시간", sub: "식사 맛있게 하시고, 가볍게 산책을 다녀오셔도 좋습니다", walk: [["남대문 시장", "10min"], ["남산 백범광장", "20min"], ["신세계백화점", "20min"]] });
   workSlide("solve", "define-work", { eb: "④ 문제 정의 · 조별 토의", from: "15:10", to: "15:40", head: "우리 조 주제의 문제를 정의해 주세요",
     stepsLabel: "정의 순서", steps: ["문제 하나 고르기 5분", "현장 사례로 구체화 10분", "원인 찾기 15분"],
     title: "조별 토의 · 문제 정의", notes: "토의하는 동안 띄워 두는 장입니다. 앞 장의 토의 주제 세 가지가 그대로 보여 문제를 잊지 않고 토의할 수 있습니다. 설명이 끝나면 '남은 시간'을 눌러 30:00(또는 남은 만큼)을 입력하고 Enter. 5분·15분 지점에서 다음 순서로 넘어가도록 안내하고, 1분 남으면 숫자가 주황색으로 바뀝니다." });
