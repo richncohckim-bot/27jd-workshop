@@ -941,7 +941,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1116-1135</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1116-1315</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -996,7 +996,7 @@ function fit() {
 addEventListener("resize", fit); fit();
 
 /* ============================================================
-   2일차 ② 우수 사례 공유 — cases.js 내용으로 장을 만듭니다.
+   2일차 ② 주임단 우수 사례 공유 — cases.js 내용으로 장을 만듭니다.
    cases.js가 비어 있으면 리허설 모드는 예시, 실제 화면은 [ ] 틀을 보여 줍니다.
    ============================================================ */
 const CASE_SAMPLE = [
@@ -1089,7 +1089,7 @@ function buildCases() {
   const anchor = document.querySelector('.sl[data-id="day2"]');
   const at = DECK.findIndex(d => d.id === "day2");
   if (!anchor || at < 0 || !list.length) return;
-  const SEC = "2일차 ② 우수 사례 공유", N = list.length;
+  const SEC = "2일차 ② 주임단 우수 사례 공유", N = list.length;
   const tag = mode === "sample" ? "예시 내용 · 실제 제출 내용으로 바뀝니다" : mode === "blank" ? "[ ] 안은 제출 내용으로 채움" : "";
   const hm = m => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
   const T0 = 9 * 60 + 25, PER = 13;           // 09:25 시작(타임테이블 09:25~10:10), 도입 2분 + 1인 13분(발표 10분 + 질의 3분)
@@ -1102,11 +1102,11 @@ function buildCases() {
   const foot = (l, r) => '<div class="foot"><p>' + esc(l) + "</p><p>" + esc(r) + "</p></div>";
 
   mk("cases", "dark", '<div class="vbar"></div>' +
-    '<div class="top"><p class="eb">2일차 ② 우수 사례 공유</p><p class="pill">' + N + "명 · 1인 10분</p></div>" +
+    '<div class="top"><p class="eb">2일차 ② 주임단 우수 사례 공유</p><p class="pill">' + N + "명 · 1인 10분</p></div>" +
     '<h1 style="font-size:100px;font-weight:700;line-height:1.12">현장에서 먼저 바꿔 본<br>동료의 이야기</h1>' +
     '<div class="lineup">' + list.map((c, k) => "<div><b>" + (k + 1) + "</b><h3>" + esc(c.title) + "</h3><p>" + esc([c.branch, c.name].filter(Boolean).join(" · ")) + "</p></div>").join("") + "</div>" +
     foot(tag || "힘들었던 점 → 해 본 것 → 달라진 점", ""),
-    { title: "우수 사례 공유", time: "2일차 " + hm(T0), notes: "② 우수 사례 공유 시작. 발표자 " + N + "분을 한 번에 소개하고 1번 발표자부터 모십니다. 1인 10분 내외, 질문은 발표마다 한두 개만 받습니다." });
+    { title: "주임단 우수 사례 공유", time: "2일차 " + hm(T0), notes: "② 주임단 우수 사례 공유 시작. 발표자 " + N + "분을 한 번에 소개하고 1번 발표자부터 모십니다. 1인 10분 내외, 질문은 발표마다 한두 개만 받습니다." });
 
   list.forEach((c, k) => {
     const n = k + 1, t = T0 + 2 + k * PER, who = [c.branch, c.name].filter(Boolean).join(" · ");
@@ -1116,7 +1116,7 @@ function buildCases() {
     const tsize = String(c.title || "").length > 20 ? 88 : 104;
 
     mk(pre + "cover", "dark", '<div class="vbar"></div>' +
-      '<div class="top"><p class="eb">2일차 ② 우수 사례 공유</p><p class="pill">발표 ' + n + " / " + N + "</p></div>" +
+      '<div class="top"><p class="eb">2일차 ② 주임단 우수 사례 공유</p><p class="pill">발표 ' + n + " / " + N + "</p></div>" +
       '<div><h1 style="font-size:' + tsize + 'px;font-weight:700;line-height:1.15">' + esc(c.title || "") + '</h1><p class="who" style="margin-top:44px">' + esc(who) + '</p>' + (c.role ? '<p class="role">' + esc(c.role) + "</p>" : "") + "</div>" +
       '<div class="flow"><p><b>01</b>힘들었던 점</p><em>→</em><p><b>02</b>해 본 것</p><em>→</em><p><b>03</b>달라진 점</p></div>' +
       foot(tag, "1/4"),
@@ -1204,7 +1204,7 @@ function buildExtras() {
     stepsLabel: "도출 순서", steps: ["아이디어 내기 15분", "실행 주체로 나누기 15분", "개선안 1~2개 정리 10분"],
     cols: [["내가 · 우리 사무실에서", "월요일부터 바로 바꿀 수 있는 것"], ["관리자·RP와 함께", "서로 약속이 필요한 것"], ["본사에 요청", "기준·제도·시스템이 바뀌어야 하는 것"]],
     title: "조별 토의 · 개선방향 도출", notes: "⑤-1 설명 뒤 띄워 두는 장입니다. 남은 시간에 40:00을 입력하고 Enter. 종료 5분 전(16:15)에 다음 장인 사진 올리기 안내로 넘어갑니다." });
-  breakSlide("day2", "break3", "2일차", "10:10", "10:20", "③ 디지털·AI 활용", "2일차 ② 우수 사례 공유");
+  breakSlide("day2", "break3", "2일차", "10:10", "10:20", "③ 디지털·AI 활용", "2일차 ② 주임단 우수 사례 공유");
   const before = DECK.some(d => d.id === "cases") ? "cases" : "day2";
   addSlide(before, "mind", "dark", '<div class="vbar"></div>' +
     '<div class="top"><p class="eb">2일차 ① 마음챙김</p><p class="pill">09:00 ~ 09:25</p></div>' +
