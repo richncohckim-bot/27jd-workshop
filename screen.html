@@ -50,6 +50,12 @@ body{font-family:'IBM Plex Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun 
 .photos{flex:1;display:flex;gap:24px;min-height:0}
 .photos .ph{flex:1;background:#E9E6DF;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-width:0;cursor:zoom-in}
 .photos .ph img{width:100%;height:100%;object-fit:contain;display:block}
+.photos.rest{flex-wrap:wrap;justify-content:center;align-content:stretch;gap:24px}
+.photos.rest .rc{flex:0 0 calc((100% - 48px)/3);height:calc((100% - 24px)/2);display:flex;flex-direction:column;gap:8px;min-height:0}
+.photos.rest.one .rc{height:100%}
+.photos.rest .rc .ph{flex:1;min-height:0}
+.photos.rest .rc b{font-size:28px;font-weight:700}
+.photos.rest .rc .ph.no{cursor:default;font-size:26px;color:var(--faint)}
 .empty{flex:1;border:3px dashed var(--line);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;color:var(--faint);text-align:center;line-height:1.5}
 .zoom{position:absolute;inset:0;background:rgba(20,20,18,.96);display:none;align-items:center;justify-content:center;z-index:20;cursor:zoom-out}
 .zoom.on{display:flex}
@@ -986,7 +992,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 </div>
 <div class="sl live" data-id="board-photos">
 <div class="board">
- <div class="bhead"><div><div class="eyebrow">⑤-2 조별 발표</div><h2 id="galTitle">1조 발표</h2></div><div class="tabs" id="galTabs"></div></div>
+ <div class="bhead"><div><div class="eyebrow">⑤-3 조별 발표</div><h2 id="galTitle">1조 발표</h2></div><div class="tabs" id="galTabs"></div></div>
  <div class="photos" id="galPhotos"></div>
  <div class="bfoot"><span>클리커 → 다음 조 · 사진 누르면 크게 · R 새로고침</span><span id="galPos"></span></div>
 </div>
@@ -1208,7 +1214,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-0840</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-0850</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1511,6 +1517,8 @@ const photoCache = {}, photoCount = {};
 let VOTES = {}, TOP = [];
 try { const v = JSON.parse(store("rpws-vote") || "{}"); VOTES = v.votes || {}; TOP = v.top || []; } catch (e) {}
 const lineup = () => TOP.length ? TOP : Array.from({ length: TEAMS }, (_, k) => k + 1);
+const restTeams = () => TOP.length ? Array.from({ length: TEAMS }, (_, k) => k + 1).filter(t => !TOP.includes(t)) : [];
+const seq = () => restTeams().length ? lineup().concat([0]) : lineup();   // 0 = 나머지 조 묶음
 let hidden = new Set(JSON.parse(store("rpws-hidden") || "[]"));
 const idOf = i => DECK[i].id;
 const curId = () => idOf(S.i);
@@ -1661,7 +1669,7 @@ function show(i, quiet) {
   $("#pos").textContent = (i + 1) + " / " + DECK.length;
   history.replaceState(null, "", location.pathname + location.search + "#s=" + (i + 1));
   const id = curId();
-  if (id === "board-photos") { if (!lineup().includes(S.team)) S.team = lineup()[0]; renderTeam(); }
+  if (id === "board-photos") { if (!seq().includes(S.team)) S.team = seq()[0]; renderTeam(); }
   if (id === "vote") renderVote();
   if (id === "changer") { if (!quiet && prevI !== i) S.step = prevI > i ? 3 : 0; renderChg(); }
   if (id === "board-wall") { wallKey = ""; refreshPledges(); }
@@ -1674,20 +1682,20 @@ function show(i, quiet) {
 }
 function next() {
   const id = curId();
-  if (id === "board-photos") { const L = lineup(), k = L.indexOf(S.team); if (k < L.length - 1) { S.team = L[k + 1]; renderTeam(); broadcast(); renderSide(); return; } }
+  if (id === "board-photos") { const L = seq(), k = L.indexOf(S.team); if (k < L.length - 1) { S.team = L[k + 1]; renderTeam(); broadcast(); renderSide(); return; } }
   if (id === "changer" && S.step < 3) { S.step++; renderChg(); broadcast(); renderSide(); return; }
   if (id === "board-wall" && $("#spot").classList.contains("on")) { openSpot(spotIdx + 1); return; }
   const nid = DECK[S.i + 1] && DECK[S.i + 1].id;
-  if (nid === "board-photos") S.team = lineup()[0];
+  if (nid === "board-photos") S.team = seq()[0];
   show(S.i + 1);
 }
 function prev() {
   const id = curId();
-  if (id === "board-photos") { const L = lineup(), k = L.indexOf(S.team); if (k > 0) { S.team = L[k - 1]; renderTeam(); broadcast(); renderSide(); return; } }
+  if (id === "board-photos") { const L = seq(), k = L.indexOf(S.team); if (k > 0) { S.team = L[k - 1]; renderTeam(); broadcast(); renderSide(); return; } }
   if (id === "changer" && S.step > 0) { S.step--; renderChg(); broadcast(); renderSide(); return; }
   if (id === "board-wall" && $("#spot").classList.contains("on")) { closeSpot(); return; }
   const pid = DECK[S.i - 1] && DECK[S.i - 1].id;
-  if (pid === "board-photos") { const L = lineup(); S.team = L[L.length - 1]; }
+  if (pid === "board-photos") { const L = seq(); S.team = L[L.length - 1]; }
   show(S.i - 1);
 }
 
@@ -1740,10 +1748,10 @@ function renderSide() {
   if (!PRESENTER) return;
   const d = DECK[S.i], n = DECK[S.i + 1];
   $("#pTime").textContent = (S.i + 1) + " / " + DECK.length + (d.time ? " · 계획 " + d.time : "");
-  $("#pTitle").textContent = d.title + (d.id === "board-photos" ? " — " + S.team + "조" : d.id === "changer" ? " — " + S.step + "/3" : "");
+  $("#pTitle").textContent = d.title + (d.id === "board-photos" ? " — " + (S.team ? S.team + "조" : "나머지 결과물") : d.id === "changer" ? " — " + S.step + "/3" : "");
   $("#pNotes").textContent = d.notes || "";
-  const L = lineup(), lk = L.indexOf(S.team);
-  $("#pNext").textContent = d.id === "board-photos" && lk > -1 && lk < L.length - 1 ? L[lk + 1] + "조 사진" : d.id === "changer" && S.step < 3 ? CHG_NEXT[S.step] : (n ? n.title : "끝");
+  const L = seq(), lk = L.indexOf(S.team);
+  $("#pNext").textContent = d.id === "board-photos" && lk > -1 && lk < L.length - 1 ? (L[lk + 1] ? L[lk + 1] + "조 사진" : "나머지 결과물") : d.id === "changer" && S.step < 3 ? CHG_NEXT[S.step] : (n ? n.title : "끝");
 }
 function buildGrid() {
   let html = "", sec = null;
@@ -1794,9 +1802,9 @@ async function refreshPledges() {
 function renderTabs() {
   const box = $("#galTabs"); if (!box) return;
   box.innerHTML = "";
-  for (const t of lineup()) {
+  for (const t of seq()) {
     const b = document.createElement("button");
-    b.textContent = t;
+    b.textContent = t || "나머지";
     b.className = (t === S.team ? "on " : "") + (((status.photos || {})[t] || 0) ? "has" : "");
     b.onclick = () => { S.team = t; renderTeam(); broadcast(); renderSide(); };
     box.appendChild(b);
@@ -1805,6 +1813,8 @@ function renderTabs() {
 async function renderTeam(force) {
   const t = S.team;
   renderTabs();
+  $("#galPhotos").classList.toggle("rest", t === 0);
+  if (t === 0) return renderRest(force);
   const L = lineup(), rk = L.indexOf(t) + 1;
   $("#galTitle").textContent = TOP.length ? rankTxt(t) + " · " + t + "조 발표" : t + "조 발표";
   $("#galPos").textContent = TOP.length ? rk + " / " + L.length + "개 조 · 스티커 " + (VOTES[t] || 0) + "장" : t + " / " + TEAMS + "조";
@@ -1822,6 +1832,21 @@ async function renderTeam(force) {
   $$("#galPhotos .ph").forEach(el => el.onclick = () => { $("#zoomImg").src = items[+el.dataset.k].data; $("#zoom").classList.add("on"); });
 }
 $("#zoom").onclick = () => $("#zoom").classList.remove("on");
+/* 발표하지 않은 조: 한 화면에 첫 장만 모아 보기 (순위·스티커 수는 표시하지 않음) */
+async function renderRest(force) {
+  const R = restTeams(), box = $("#galPhotos");
+  $("#galTitle").textContent = "함께 만든 결과물";
+  $("#galPos").textContent = R.map(t => t + "조").join(" · ");
+  await Promise.all(R.map(async t => {
+    const want = (status.photos || {})[t] || 0;
+    if (photoCache[t] && !force && photoCount[t] === want) return;
+    try { const r = await API_GET({ type: "photos", team: t }); photoCache[t] = r.items || []; photoCount[t] = photoCache[t].length; } catch (e) {}
+  }));
+  if (S.team !== 0 || curId() !== "board-photos") return;
+  box.classList.toggle("one", R.length <= 3);
+  box.innerHTML = R.map(t => { const it = (photoCache[t] || [])[0]; return '<div class="rc"><b>' + t + '조</b>' + (it ? '<div class="ph" data-t="' + t + '"><img src="' + it.data + '" alt="' + t + '조 결과물"></div>' : '<div class="ph no">사진 없음</div>') + "</div>"; }).join("");
+  $$("#galPhotos .ph[data-t]").forEach(el => el.onclick = () => { $("#zoomImg").src = photoCache[el.dataset.t][0].data; $("#zoom").classList.add("on"); });
+}
 
 
 /* ---------- 갤러리 워크 · 스티커 집계 → 상위 5개 조 ---------- */
