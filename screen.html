@@ -361,6 +361,11 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 #why .wy-c h3{font-size:38px;font-weight:900;margin-top:16px}
 #why .wy-c p{font-size:26px;line-height:1.5;color:#C9C5BC;margin-top:14px}
 #why .wy-ft{font-size:26px;color:#8A8780;margin-top:40px}
+.wknote,.brkrow p.wknote{font-size:28px;font-weight:400;margin-top:14px;color:var(--soft);line-height:1.4}
+.wknote b{color:#FFA500}
+.tabs button.rk{color:#C77700;border-color:#FFD9A0}
+.tabs button.rk.on{background:#FFA500;border-color:#FFA500;color:#1E1E1C}
+#galTitle .rk{color:#FFA500}
 /* 갤러리 워크 · 스티커 집계 */
 #vote .vr{display:flex;gap:24px}
 #vote .vr>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 32px;display:flex;gap:22px;align-items:center}
@@ -1214,7 +1219,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-0850</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-0915</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1466,18 +1471,18 @@ function workSlide(beforeId, id, o) {
   addSlide(beforeId, id, "dark brk", '<div class="vbar"></div>' +
     '<div class="top"><p class="eb">' + esc(o.eb) + '</p><p class="pill">' + esc(o.from + " ~ " + o.to) + "</p></div>" +
     '<div><h1 style="font-size:' + (o.cols ? 56 : 64) + 'px;font-weight:700;line-height:1.2">' + esc(o.head) + "</h1>" +
-    '<p style="font-size:32px;color:var(--soft);margin-top:18px"><b class="ed rt" data-role="resume" title="눌러서 종료 시각 입력 → Enter">' + esc(o.to) + "</b>까지 · " + min + "분</p></div>" +
+    '<p style="font-size:32px;color:var(--soft);margin-top:18px"><b class="ed rt" data-role="resume" title="눌러서 종료 시각 입력 → Enter">' + esc(o.to) + "</b>까지 · <span class=\"wkmin\">" + min + "</span>분</p></div>" +
     '<div class="wk' + (o.cols ? " mini" : "") + '">' + tp.map(t => "<div><small>" + esc(t.lab) + "</small><p>" + esc(t.q) + "</p></div>").join("") + "</div>" +
     (o.cols ? '<div class="who3">' + o.cols.map((c, k) => "<div><b>0" + (k + 1) + "</b><h3>" + esc(c[0]) + "</h3><p>" + esc(c[1]) + "</p></div>").join("") + "</div>" : "") +
-    '<div class="brkrow"><div><small>' + esc(o.stepsLabel) + '</small><p class="wksteps">' + o.steps.map(esc).join("<em>→</em>") + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 30:00) → Enter">--:--</b></div></div>' +
+    '<div class="brkrow"><div><small>' + esc(o.stepsLabel) + '</small><p class="wksteps">' + o.steps.map(esc).join("<em>→</em>") + '</p>' + (o.noteHtml ? '<p class="wknote">' + o.noteHtml + '</p>' : '') + '</div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 30:00) → Enter">--:--</b></div></div>' +
     '<p class="brkhint">남은 시간이나 종료 시각을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
-    { title: o.title, section: "조별 토의와 발표", time: "1일차 " + o.from + " ~ " + o.to, brkDur: min * 60, brkDone: "시간 종료", kind: "work", notes: o.notes });
+    { title: o.title, section: "조별 토의와 발표", time: "1일차 " + o.from + " ~ " + o.to, brkDur: min * 60, brkDone: "시간 종료", kind: "work", notes: o.notes, wkMin: min, wkSteps: o.steps });
   const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
 }
 function buildExtras() {
   breakSlide("cover", "break1", "1일차", "14:30", "14:50", "업무개선 워크숍 · 사전 설문 결과 공유", "세션 도입");
   breakSlide("break1", "lunch1", "1일차", "11:30", "13:00", "굿리치 Value CODE", "1일차 오전 · 과정 안내", { eb: "점심", head: "점심시간", sub: "식사 맛있게 하시고, 가볍게 산책을 다녀오셔도 좋습니다", walk: [["남대문 시장", "10min"], ["남산 백범광장", "20min"], ["신세계백화점", "20min"]] });
-  workSlide("solve", "define-work", { eb: "④ 문제 정의 · 조별 토의", from: "15:10", to: "15:40", head: "우리 조 주제의 문제를 정의해 주세요",
+  workSlide("solve", "define-work", { noteHtml: '<b>해결책은 아직 말하지 않습니다</b> · 떠오르면 워크지 아이디어 주차장에 메모해 두세요', eb: "④ 문제 정의 · 조별 토의", from: "15:10", to: "15:40", head: "우리 조 주제의 문제를 정의해 주세요",
     stepsLabel: "정의 순서", steps: ["문제 하나 고르기 5분", "현장 사례로 구체화 10분", "원인 찾기 15분"],
     title: "조별 토의 · 문제 정의", notes: "토의하는 동안 띄워 두는 장입니다. 앞 장의 토의 주제 세 가지가 그대로 보여 문제를 잊지 않고 토의할 수 있습니다. 설명이 끝나면 '남은 시간'을 눌러 30:00(또는 남은 만큼)을 입력하고 Enter. 5분·15분 지점에서 다음 순서로 넘어가도록 안내하고, 1분 남으면 숫자가 주황색으로 바뀝니다." });
   workSlide("upload", "solve-work", { eb: "⑤-1 개선방향 도출 · 조별 토의", from: "15:40", to: "16:20", head: "정의한 문제에서 해결책을 찾아 주세요",
@@ -1590,7 +1595,7 @@ function bgStop(fade) {
 }
 function playEnd() {
   const ctx = sndReady(); if (!ctx) return;
-  const go = () => { if (!PIANO.buf.gav) return; const s = ctx.createBufferSource(), o = ctx.createGain(); o.gain.value = PIANO.vol.gav; s.buffer = PIANO.buf.gav; s.connect(o); o.connect(ctx.destination); s.start(ctx.currentTime + .05); };
+  const go = () => { if (!PIANO.buf.gav) return; const s = ctx.createBufferSource(), o = ctx.createGain(); o.gain.value = PIANO.vol.gav * 0.7; s.buffer = PIANO.buf.gav; s.connect(o); o.connect(ctx.destination); s.start(ctx.currentTime + .05); };
   if (PIANO.buf.gav) go(); else pianoLoad(ctx).then(go);
 }
 function sndUi() { const b = $("#bSnd"); if (b) { b.textContent = SND.on ? "소리 켬 M" : "소리 끔 M"; b.style.opacity = SND.on ? 1 : .55; } }
@@ -1607,6 +1612,7 @@ function brkSet(id, until, quiet) {
   const st = brkState(id); st.until = until; st.armed = !!until && until > Date.now(); sndCtx();
   const sec = document.querySelector('.sl[data-id="' + id + '"]');
   if (sec && until) sec.querySelector('[data-role="resume"]').textContent = hhmm(until);
+  wkAdjust(id, until);
   brkTick();
   if (!quiet && chan) chan.postMessage({ brk: { id, until } });
 }
@@ -1626,6 +1632,23 @@ function brkTick() {
   const on = document.querySelector(".sl.on.brkslide"), st = on && brkState(on.dataset.id);
   const want = st && st.until && st.until > Date.now() ? (isWork(on.dataset.id) ? "work" : "rest") : null;
   if (want !== BG.kind) { if (want) bgStart(want); else bgStop(1); }
+}
+/* 활동 장: 입력한 종료 시각까지 남은 분을 처음 단계 비율(예: 5:10:15)대로 다시 나눔 · 오른쪽 위 계획 시간은 그대로 */
+function wkAdjust(id, until) {
+  const d = DECK.find(x => x.id === id), sl = document.querySelector('.sl[data-id="' + id + '"]');
+  if (!d || !d.wkSteps || !sl) return;
+  const mEl = sl.querySelector(".wkmin"), sEl = sl.querySelector(".wksteps");
+  const w = d.wkSteps.map(t => { const m = t.match(/(\d+)분$/); return m ? +m[1] : 0; });
+  const base = d.wkSteps.map(t => t.replace(/\s*\d+분$/, ""));
+  let total = until ? Math.max(0, Math.round((until - Date.now()) / 60000)) : d.wkMin, parts = w;
+  if (until) {
+    const sum = w.reduce((a, b) => a + b, 0) || 1, raw = w.map(x => x * total / sum);
+    parts = raw.map(Math.floor); let left = total - parts.reduce((a, b) => a + b, 0);
+    raw.map((x, k) => [x - Math.floor(x), k]).sort((a, b) => b[0] - a[0]).forEach(([, k]) => { if (left > 0) { parts[k]++; left--; } });
+  }
+  mEl.textContent = total;
+  const showMin = !until || total >= 6;
+  sEl.innerHTML = base.map((t, k) => esc(t) + (showMin && w[k] ? " " + parts[k] + "분" : "")).join("<em>→</em>");
 }
 function isWork(id) { return (DECK.find(d => d.id === id) || {}).kind === "work"; }
 function brkEdit(el, kind) {
@@ -1748,10 +1771,10 @@ function renderSide() {
   if (!PRESENTER) return;
   const d = DECK[S.i], n = DECK[S.i + 1];
   $("#pTime").textContent = (S.i + 1) + " / " + DECK.length + (d.time ? " · 계획 " + d.time : "");
-  $("#pTitle").textContent = d.title + (d.id === "board-photos" ? " — " + (S.team ? S.team + "조" : "나머지 결과물") : d.id === "changer" ? " — " + S.step + "/3" : "");
+  $("#pTitle").textContent = d.title + (d.id === "board-photos" ? " — " + (S.team ? S.team + "조" : "...") : d.id === "changer" ? " — " + S.step + "/3" : "");
   $("#pNotes").textContent = d.notes || "";
   const L = seq(), lk = L.indexOf(S.team);
-  $("#pNext").textContent = d.id === "board-photos" && lk > -1 && lk < L.length - 1 ? (L[lk + 1] ? L[lk + 1] + "조 사진" : "나머지 결과물") : d.id === "changer" && S.step < 3 ? CHG_NEXT[S.step] : (n ? n.title : "끝");
+  $("#pNext").textContent = d.id === "board-photos" && lk > -1 && lk < L.length - 1 ? (L[lk + 1] ? L[lk + 1] + "조 사진" : "... 함께 만든 결과물") : d.id === "changer" && S.step < 3 ? CHG_NEXT[S.step] : (n ? n.title : "끝");
 }
 function buildGrid() {
   let html = "", sec = null;
@@ -1804,8 +1827,8 @@ function renderTabs() {
   box.innerHTML = "";
   for (const t of seq()) {
     const b = document.createElement("button");
-    b.textContent = t || "나머지";
-    b.className = (t === S.team ? "on " : "") + (((status.photos || {})[t] || 0) ? "has" : "");
+    b.textContent = t || "...";
+    b.className = (t === S.team ? "on " : "") + (TOP.includes(t) ? "rk " : "") + (((status.photos || {})[t] || 0) ? "has" : "");
     b.onclick = () => { S.team = t; renderTeam(); broadcast(); renderSide(); };
     box.appendChild(b);
   }
@@ -1816,7 +1839,7 @@ async function renderTeam(force) {
   $("#galPhotos").classList.toggle("rest", t === 0);
   if (t === 0) return renderRest(force);
   const L = lineup(), rk = L.indexOf(t) + 1;
-  $("#galTitle").textContent = TOP.length ? rankTxt(t) + " · " + t + "조 발표" : t + "조 발표";
+  $("#galTitle").innerHTML = TOP.length ? '<span class="rk">' + rankTxt(t) + "</span> " + t + "조 발표" : t + "조 발표";
   $("#galPos").textContent = TOP.length ? rk + " / " + L.length + "개 조 · 스티커 " + (VOTES[t] || 0) + "장" : t + " / " + TEAMS + "조";
   const box = $("#galPhotos");
   const want = (status.photos || {})[t] || 0;
