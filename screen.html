@@ -1233,7 +1233,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-1420</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-1650</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1495,7 +1495,7 @@ function workSlide(beforeId, id, o) {
 }
 function buildExtras() {
   breakSlide("cover", "break1", "1일차", "14:30", "14:50", "업무개선 워크숍 · 사전 설문 결과 공유", "세션 도입");
-  breakSlide("break1", "lunch1", "1일차", "11:30", "13:00", "굿리치 Value CODE", "1일차 오전 · 과정 안내", { eb: "점심", head: "점심시간", sub: "식사 맛있게 하시고, 가볍게 산책을 다녀오셔도 좋습니다", walk: [["남대문 시장", "10min"], ["남산 백범광장", "20min"], ["신세계백화점", "20min"]] });
+  breakSlide("break1", "lunch1", "1일차", "11:30", "13:00", "굿리치 Value CODE", "1일차 오전 · 과정 안내", { eb: "점심", head: "점심시간", sub: "식사 맛있게 하시고, 가볍게 산책을 다녀오셔도 좋습니다", walk: [["남대문 시장", "5min"], ["남산 백범광장", "10min"], ["신세계백화점", "10min"]] });
   workSlide("solve", "define-work", { noteHtml: '<b>해결책은 아직 말하지 않습니다</b> · 떠오르면 워크지 아이디어 주차장에 메모해 두세요', eb: "④ 문제 정의 · 조별 토의", from: "15:10", to: "15:40", head: "우리 조 주제의 문제를 정의해 주세요",
     stepsLabel: "정의 순서", steps: ["문제 하나 고르기 5분", "현장 사례로 구체화 10분", "원인 찾기 15분"],
     title: "조별 토의 · 문제 정의", notes: "토의하는 동안 띄워 두는 장입니다. 앞 장의 토의 주제 세 가지가 그대로 보여 문제를 잊지 않고 토의할 수 있습니다. 설명이 끝나면 '남은 시간'을 눌러 30:00(또는 남은 만큼)을 입력하고 Enter. 5분·15분 지점에서 다음 순서로 넘어가도록 안내하고, 1분 남으면 숫자가 주황색으로 바뀝니다." });
