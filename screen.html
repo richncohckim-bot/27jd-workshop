@@ -379,13 +379,15 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 #bingo-ask .ba-now{margin-right:auto;font-size:26px;color:#8A8780}
 #bingo-ask .ba-now b{font-size:44px;color:#1E1E1C;font-weight:700;margin-left:10px;font-variant-numeric:tabular-nums;cursor:default}
 #bingo-ask .ba-tm{display:flex;justify-content:flex-end;align-items:center;gap:18px;margin-top:22px}
-#bingo-ask .ba-bar{width:360px;height:10px;border-radius:6px;background:#E4E1DA;overflow:hidden}
+#bingo-ask .ba-bar{width:360px;height:10px;border-radius:6px;background:#E4E1DA;overflow:hidden;display:flex;justify-content:flex-end}
 #bingo-ask .ba-bar i{display:block;width:100%;height:100%;background:#FFA500;transition:width 1s linear}
 #bingo-ask .ba-tm small{font-size:22px;color:#8A8780}
 #bingo-ask .ba-tm b[data-role]{font-size:44px;font-weight:700;color:#1E1E1C;font-variant-numeric:tabular-nums;cursor:pointer}
 #bingo-ask .ba-tm.soon b[data-role],#bingo-ask .ba-tm.done b[data-role]{color:#E08A00}
 #bingo-ask .ba-tm.done b[data-role]{animation:blink 1.2s ease-in-out infinite}
 #bingo-ask .ba-tm .brkin{font-size:44px;width:3.9em}
+.cs .cd .ba-bar{width:100%;height:10px;border-radius:6px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:14px;display:flex;justify-content:flex-end}
+.cs .cd .ba-bar i{display:block;height:100%;width:100%;background:#FFA500;transition:width 1s linear}
 /* 갤러리 워크 · 스티커 집계 */
 #vote .vr{display:flex;gap:24px}
 #vote .vr>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 32px;display:flex;gap:22px;align-items:center}
@@ -1258,7 +1260,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1118-1730</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1118-1755</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
@@ -1493,7 +1495,7 @@ function breakSlide(beforeId, id, day, from, to, next, section, o) {
     '<div class="top"><p class="eb">' + esc(day) + " · " + esc(o.eb || "휴식") + "</p><p class=\"pill\">" + esc(from + " ~ " + to) + "</p></div>" +
     '<div><h1 style="font-size:160px;font-weight:700;line-height:1">' + esc(o.head || "잠시 쉬어 갑니다") + '</h1>' + (o.sub ? (o.walk ? '<div style="display:grid;grid-template-columns:auto 260px auto;grid-template-rows:60px 60px 60px;column-gap:18px;row-gap:8px;align-items:center;justify-content:start;margin-top:24px;font-size:40px;color:var(--soft)">' + '<p style="white-space:nowrap;grid-row:1;grid-column:1">' + esc(o.sub) + '</p><svg width="260" height="196" viewBox="0 0 260 196" style="grid-row:1 / span 3;grid-column:2;overflow:visible" fill="none" stroke="#7A7871" stroke-width="5" stroke-linecap="round" stroke-dasharray="0.1 13"><path d="M6 30 C 80 -34, 170 94, 252 30"/><path d="M6 30 C 40 30, 50 98, 100 98 C 145 58, 205 138, 252 98"/><path d="M6 30 C 30 30, 46 166, 96 166 C 141 126, 205 206, 252 166"/><circle cx="6" cy="30" r="7" fill="#7A7871" stroke="none"/></svg>' + o.walk.map((w, i) => '<p style="grid-row:' + (i + 1) + ';grid-column:3;display:flex;align-items:center;gap:14px;white-space:nowrap;color:#F7F6F3;font-weight:700"><svg viewBox="0 0 24 24" width="38" height="38" fill="#FFA500" style="flex:0 0 auto"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>' + esc(w[0]) + ' <b style="color:var(--orange);font-weight:800;margin-left:6px">' + esc(w[1]) + '</b></p>').join('') + '</div>' : '<p style="font-size:40px;color:var(--soft);margin-top:28px">' + esc(o.sub) + '</p>') : '') + '' +
     '<p style="font-size:48px;color:var(--soft);margin-top:40px"><b class="ed rt" data-role="resume" title="눌러서 재개 시각 입력 → Enter">' + esc(to) + "</b>에 다시 시작합니다</p></div>" +
-    '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 10:00) → Enter">--:--</b></div></div>' +
+    '<div class="brkrow"><div><small>다음 순서</small><p>' + esc(next) + '</p></div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 10:00) → Enter">--:--</b><div class="ba-bar"><i></i></div></div></div>' +
     '<p class="brkhint">시각이나 남은 시간을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
     { title: (o.eb || "휴식") + " · " + to + " 재개", section, time: day + " " + from + " ~ " + to, brkDur: ((th * 60 + tm) - (fh * 60 + fm)) * 60,
       notes: "휴식 " + from + "~" + to + ". 타이머는 처음에 멈춰 있습니다. 화면의 '남은 시간'을 눌러 10:00처럼 입력하고 Enter를 누르면 바로 줄어들기 시작합니다. 재개 시각(" + to + ")을 눌러 다른 시각을 넣어도 됩니다. 0이 되면 '곧 시작'으로 바뀝니다. 재개 1분 전에 자리 착석을 안내합니다." });
@@ -1513,7 +1515,7 @@ function workSlide(beforeId, id, o) {
     '<p style="font-size:32px;color:var(--soft);margin-top:18px"><b class="ed rt" data-role="resume" title="눌러서 종료 시각 입력 → Enter">' + esc(o.to) + "</b>까지 · <span class=\"wkmin\">" + min + "</span>분</p></div>" +
     '<div class="wk' + (o.cols ? " mini" : "") + '">' + tp.map(t => "<div><small>" + esc(t.lab) + "</small><p>" + esc(t.q) + "</p></div>").join("") + "</div>" +
     (o.cols ? '<div class="who3">' + o.cols.map((c, k) => "<div><b>0" + (k + 1) + "</b><h3>" + esc(c[0]) + "</h3><p>" + esc(c[1]) + "</p></div>").join("") + "</div>" : "") +
-    '<div class="brkrow"><div><small>' + esc(o.stepsLabel) + '</small><p class="wksteps">' + o.steps.map(esc).join("<em>→</em>") + '</p>' + (o.noteHtml ? '<p class="wknote">' + o.noteHtml + '</p>' : '') + '</div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 30:00) → Enter">--:--</b></div></div>' +
+    '<div class="brkrow"><div><small>' + esc(o.stepsLabel) + '</small><p class="wksteps">' + o.steps.map(esc).join("<em>→</em>") + '</p>' + (o.noteHtml ? '<p class="wknote">' + o.noteHtml + '</p>' : '') + '</div><div class="cd idle"><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 30:00) → Enter">--:--</b><div class="ba-bar"><i></i></div></div></div>' +
     '<p class="brkhint">남은 시간이나 종료 시각을 눌러 입력하고 Enter를 누르면 타이머가 시작됩니다 · 타이머가 도는 동안 음악이 흐릅니다(M 켜기/끄기) · Esc 취소</p>',
     { title: o.title, section: "조별 토의와 발표", time: "1일차 " + o.from + " ~ " + o.to, brkDur: min * 60, brkDone: "시간 종료", kind: "work", notes: o.notes, wkMin: min, wkSteps: o.steps });
   const sl = document.querySelector('.sl[data-id="' + id + '"]'); if (sl) sl.classList.add("brkslide");
