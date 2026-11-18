@@ -376,8 +376,8 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 #bingo-ask .ba-c b{position:absolute;left:16px;top:10px;font-size:30px;font-weight:900;color:#FFA500}
 #bingo-ask .ba-c p{white-space:nowrap;font-size:26px;font-weight:700;line-height:1.45}
 #bingo-ask .ba-c.ex{background:#FFF1D6}
-#bingo-ask .ba-now{margin-right:auto;font-size:26px;color:#8A8780}
-#bingo-ask .ba-now b{font-size:44px;color:#1E1E1C;font-weight:700;margin-left:10px;font-variant-numeric:tabular-nums;cursor:default}
+#bingo-ask .ba-now{margin-right:auto;font-size:26px;color:#8A8780;display:flex;align-items:center;gap:10px}
+#bingo-ask .ba-now b{font-size:44px;color:#1E1E1C;font-weight:700;font-variant-numeric:tabular-nums;cursor:default}
 #bingo-ask .ba-tm{display:flex;justify-content:flex-end;align-items:center;gap:18px;margin-top:22px}
 #bingo-ask .ba-bar{width:360px;height:10px;border-radius:6px;background:#E4E1DA;overflow:hidden;display:flex;justify-content:flex-end}
 #bingo-ask .ba-bar i{display:block;width:100%;height:100%;background:#FFA500;transition:width 1s linear}
@@ -486,7 +486,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 <p class="ot-eb" style="color:#9A5B00">아이스브레이킹 · 주임단 공감 빙고</p>
 <div style="display:flex;justify-content:space-between;align-items:flex-end"><h1 class="ot-h">이름을 적었다면, <span>물어보기</span></h1>
 <p class="ot-sub">해당하는 조원 이름 적기 · 한 사람 최대 2칸 · <b>7칸</b> 먼저 채운 조 1등!</p></div>
-<div class="ba-g"><div class="ba-c ex"><b>1</b><p>하루에 전화를 50통 넘게<br>받아 본 적 있다</p><br><i class="ba-t"><span>↳</span> 최고 몇 통까지 받아 봤어요?</i></div><div class="ba-c"><b>2</b><p>오늘 KTX나 비행기를<br>타고 왔다</p><br><i class="ba-t"><span>↳</span> 어디서 몇 시에 출발했어요?</i></div><div class="ba-c"><b>3</b><p>휴대폰에 RP 연락처가<br>100개 넘게 저장돼 있다</p><br><i class="ba-t"><span>↳</span> 지금 몇 개예요?</i></div><div class="ba-c"><b>4</b><p>오늘 처음 만난 조원이<br>5명 이상이다</p><br><i class="ba-t"><span>↳</span> 몇 년 차세요?</i></div><div class="ba-c"><b>5</b><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p><br><i class="ba-t"><span>↳</span> 어떤 일로 들었어요?</i></div><div class="ba-c"><b>6</b><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p><br><i class="ba-t"><span>↳</span> 어디에 써 봤어요?</i></div><div class="ba-c"><b>7</b><p>휴가 중에도 지점 단톡방을<br>확인해 본 적 있다</p><br><i class="ba-t"><span>↳</span> 제일 바쁜 단톡방은 어디예요?</i></div><div class="ba-c"><b>8</b><p>업무 중 나만의<br>기분 전환법이 있다</p><br><i class="ba-t"><span>↳</span> 어떻게 해요?</i></div><div class="ba-c"><b>9</b><p>요즘 빠져 있는<br>취미가 있다</p><br><i class="ba-t"><span>↳</span> 뭐에 빠져 있어요?</i></div><div class="ba-c"><b>10</b><p>이 일을 하며 힘이 된<br>한마디가 있다</p><br><i class="ba-t"><span>↳</span> 어떤 한마디였어요?</i></div></div><div class="ba-tm cd idle"><p class="ba-now">지금 <b data-now>--:--</b></p><div class="ba-bar"><i></i></div><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 12:00) → Enter">--:--</b><b data-role="resume" hidden></b></div></section></div>
+<div class="ba-g"><div class="ba-c ex"><b>1</b><p>하루에 전화를 50통 넘게<br>받아 본 적 있다</p><br><i class="ba-t"><span>↳</span> 최고 몇 통까지 받아 봤어요?</i></div><div class="ba-c"><b>2</b><p>오늘 KTX나 비행기를<br>타고 왔다</p><br><i class="ba-t"><span>↳</span> 어디서 몇 시에 출발했어요?</i></div><div class="ba-c"><b>3</b><p>휴대폰에 RP 연락처가<br>100개 넘게 저장돼 있다</p><br><i class="ba-t"><span>↳</span> 지금 몇 개예요?</i></div><div class="ba-c"><b>4</b><p>오늘 처음 만난 조원이<br>5명 이상이다</p><br><i class="ba-t"><span>↳</span> 몇 년 차세요?</i></div><div class="ba-c"><b>5</b><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p><br><i class="ba-t"><span>↳</span> 어떤 일로 들었어요?</i></div><div class="ba-c"><b>6</b><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p><br><i class="ba-t"><span>↳</span> 어디에 써 봤어요?</i></div><div class="ba-c"><b>7</b><p>휴가 중에도 지점 단톡방을<br>확인해 본 적 있다</p><br><i class="ba-t"><span>↳</span> 제일 바쁜 단톡방은 어디예요?</i></div><div class="ba-c"><b>8</b><p>업무 중 나만의<br>기분 전환법이 있다</p><br><i class="ba-t"><span>↳</span> 어떻게 해요?</i></div><div class="ba-c"><b>9</b><p>요즘 빠져 있는<br>취미가 있다</p><br><i class="ba-t"><span>↳</span> 뭐에 빠져 있어요?</i></div><div class="ba-c"><b>10</b><p>이 일을 하며 힘이 된<br>한마디가 있다</p><br><i class="ba-t"><span>↳</span> 어떤 한마디였어요?</i></div></div><div class="ba-tm cd idle"><p class="ba-now"><span>지금</span><b data-now>--:--</b></p><div class="ba-bar"><i></i></div><small>남은 시간</small><b class="ed" data-role="remain" title="눌러서 남은 시간 입력(예: 12:00) → Enter">--:--</b><b data-role="resume" hidden></b></div></section></div>
 <div class="sl " data-id="leader">
 <section id="leader" style="background:#1E1E1C;color:#F7F6F3;padding:84px 110px">
 <p class="ld-eb">공감 빙고 · 깜짝 발표</p>
@@ -1260,7 +1260,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1118-1800</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1118-1810</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
