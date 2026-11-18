@@ -326,10 +326,11 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 .ot .ot-h{font-size:84px;font-weight:900;letter-spacing:-2px;margin-top:16px;line-height:1.1}
 .ot .ot-h span{color:#FFA500}
 .ot .ot-sub{font-size:28px;color:#5A5A55;padding-bottom:12px}.ot .ot-sub b{color:#C2402F}
-#bingo-all .ba-g{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,300px);border:6px solid #1E1E1C;background:#fff;margin-top:40px}
-#bingo-all .ba-c{border:2px solid #1E1E1C;position:relative;display:flex;align-items:center;justify-content:center;padding:30px 18px 18px;text-align:center}
+#bingo-all .ba-g{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,300px);border:6px solid #1E1E1C;background:#fff;margin-top:40px}
+#bingo-all .ba-c{border:2px solid #1E1E1C;position:relative;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;padding:30px 18px 18px;text-align:center}
+#bingo-all .ba-t{font-style:normal;font-size:20px;color:#8A8780}
 #bingo-all .ba-c b{position:absolute;left:16px;top:10px;font-size:30px;font-weight:900;color:#FFA500}
-#bingo-all .ba-c p{white-space:nowrap;font-size:28px;font-weight:700;line-height:1.45}
+#bingo-all .ba-c p{white-space:nowrap;font-size:26px;font-weight:700;line-height:1.45}
 #bingo-all .ba-c.ex{background:#FFF1D6}
 #leader-role .lr-g{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:52px}
 #leader-role .lr-c{background:#fff;border:2px solid #E4E1DA;border-radius:22px;padding:34px 32px;min-height:330px}
@@ -459,13 +460,13 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 <p class="ot-eb" style="color:#9A5B00">아이스브레이킹 · 주임단 공감 빙고</p>
 <div style="display:flex;justify-content:space-between;align-items:flex-end"><h1 class="ot-h">빙고판 <span>10문장</span></h1>
 <p class="ot-sub">해당하는 조원 이름 적기 · 한 사람 최대 2칸 · <b>7칸</b> 먼저 채운 조 1등!</p></div>
-<div class="ba-g"><div class="ba-c ex"><b>1</b><p>하루에 전화를<br>50통 넘게<br>받아 본 적 있다</p></div><div class="ba-c"><b>2</b><p>오늘 KTX나 비행기를<br>타고 왔다</p></div><div class="ba-c"><b>3</b><p>엑셀 함수로<br>업무 시간을 줄여 봤다</p></div><div class="ba-c"><b>4</b><p>지금 지점에서<br>5년 넘게 일했다</p></div><div class="ba-c"><b>5</b><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p></div><div class="ba-c"><b>6</b><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p></div><div class="ba-c"><b>7</b><p>지점 행사<br>(시상·생일 파티)를<br>직접 준비해 봤다</p></div><div class="ba-c"><b>8</b><p>휴대폰에<br>RP 연락처가 100개<br>넘게 저장돼 있다</p></div><div class="ba-c"><b>9</b><p>오늘 처음 만난 조원이<br>4명 이상이다</p></div><div class="ba-c"><b>10</b><p>후배에게 업무를<br>가르쳐 본 적 있다</p></div></div></section></div>
+<div class="ba-g"><div class="ba-c ex"><b>1</b><p>하루에 전화를 50통 넘게<br>받아 본 적 있다</p><i class="ba-t">최고 몇 통까지 받아 봤어요?</i></div><div class="ba-c"><b>2</b><p>오늘 KTX나 비행기를<br>타고 왔다</p><i class="ba-t">어디서 몇 시에 출발했어요?</i></div><div class="ba-c"><b>3</b><p>휴대폰에 RP 연락처가<br>100개 넘게 저장돼 있다</p><i class="ba-t">지금 몇 개예요?</i></div><div class="ba-c"><b>4</b><p>오늘 처음 만난 조원이<br>5명 이상이다</p><i class="ba-t">몇 년 차세요?</i></div><div class="ba-c"><b>5</b><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p><i class="ba-t">어떤 일로 들었어요?</i></div><div class="ba-c"><b>6</b><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p><i class="ba-t">어디에 써 봤어요?</i></div><div class="ba-c"><b>7</b><p>휴가 중에도 지점 단톡방을<br>확인해 본 적 있다</p><i class="ba-t">제일 바쁜 단톡방은 어디예요?</i></div><div class="ba-c"><b>8</b><p>업무 중 나만의<br>기분 전환법이 있다</p><i class="ba-t">어떻게 해요?</i></div><div class="ba-c"><b>9</b><p>요즘 빠져 있는<br>취미가 있다</p><i class="ba-t">뭐에 빠져 있어요?</i></div><div class="ba-c"><b>10</b><p>이 일을 하며 힘이 된<br>한마디가 있다</p><i class="ba-t">어떤 한마디였어요?</i></div></div></section></div>
 <div class="sl " data-id="leader">
 <section id="leader" style="background:#1E1E1C;color:#F7F6F3;padding:84px 110px">
 <p class="ld-eb">공감 빙고 · 깜짝 발표</p>
 <h1 class="ld-h">우리 조 <span>조장</span>은?</h1>
 <p class="ld-s">우리 조 번호와 <em>같은 번호 칸</em>에 이름이 적힌 분이 조장입니다!</p>
-<div class="ld-g"><div class="lt"><b>1<small>조</small></b><span>1번 칸</span><p>하루에 전화를 50통 넘게<br>받아 본 적 있다</p></div><div class="lt"><b>2<small>조</small></b><span>2번 칸</span><p>오늘 KTX나 비행기를<br>타고 왔다</p></div><div class="lt"><b>3<small>조</small></b><span>3번 칸</span><p>엑셀 함수로<br>업무 시간을 줄여 봤다</p></div><div class="lt"><b>4<small>조</small></b><span>4번 칸</span><p>지금 지점에서<br>5년 넘게 일했다</p></div><div class="lt"><b>5<small>조</small></b><span>5번 칸</span><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p></div><div class="lt"><b>6<small>조</small></b><span>6번 칸</span><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p></div><div class="lt"><b>7<small>조</small></b><span>7번 칸</span><p>지점 행사(시상·생일 파티)를<br>직접 준비해 봤다</p></div><div class="lt"><b>8<small>조</small></b><span>8번 칸</span><p>휴대폰에 RP 연락처가<br>100개 넘게 저장돼 있다</p></div><div class="lt"><b>9<small>조</small></b><span>9번 칸</span><p>오늘 처음 만난 조원이<br>4명 이상이다</p></div><div class="lt"><b>10<small>조</small></b><span>10번 칸</span><p>후배에게 업무를<br>가르쳐 본 적 있다</p></div></div>
+<div class="ld-g"><div class="lt"><b>1<small>조</small></b><span>1번 칸</span><p>하루에 전화를 50통 넘게<br>받아 본 적 있다</p></div><div class="lt"><b>2<small>조</small></b><span>2번 칸</span><p>오늘 KTX나 비행기를<br>타고 왔다</p></div><div class="lt"><b>3<small>조</small></b><span>3번 칸</span><p>휴대폰에 RP 연락처가<br>100개 넘게 저장돼 있다</p></div><div class="lt"><b>4<small>조</small></b><span>4번 칸</span><p>오늘 처음 만난 조원이<br>5명 이상이다</p></div><div class="lt"><b>5<small>조</small></b><span>5번 칸</span><p>최근 RP에게 '고맙다'는<br>말을 들어 봤다</p></div><div class="lt"><b>6<small>조</small></b><span>6번 칸</span><p>챗GPT 같은 AI를<br>업무에 써 본 적 있다</p></div><div class="lt"><b>7<small>조</small></b><span>7번 칸</span><p>휴가 중에도 지점 단톡방을<br>확인해 본 적 있다</p></div><div class="lt"><b>8<small>조</small></b><span>8번 칸</span><p>업무 중 나만의<br>기분 전환법이 있다</p></div><div class="lt"><b>9<small>조</small></b><span>9번 칸</span><p>요즘 빠져 있는<br>취미가 있다</p></div><div class="lt"><b>10<small>조</small></b><span>10번 칸</span><p>이 일을 하며 힘이 된<br>한마디가 있다</p></div></div>
 </section>
 </div>
 <div class="sl " data-id="leader-role"><section id="leader-role" class="ot" style="background:#F7F6F3;color:#1E1E1C">
@@ -1233,7 +1234,7 @@ body.presenter .side{display:flex;flex-direction:column;gap:14px;position:fixed;
 
 <div class="hud" id="hud">
   <button id="bPrev" title="이전 (←)">◀</button>
-  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1117-1710</span>
+  <span class="pos" id="pos"></span><span style="color:#77736b;font-size:12px;padding:0 6px">v1118-1640</span>
   <button id="bNext" title="다음 (→)">▶</button>
   <button id="bGrid" title="G">목록 G</button>
   <button id="bNotes" title="N">메모 N</button>
